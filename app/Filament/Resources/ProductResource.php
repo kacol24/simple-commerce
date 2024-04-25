@@ -24,16 +24,22 @@ class ProductResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Toggle::make('is_active')
-                    ->required(),
-                Forms\Components\Toggle::make('is_featured')
-                    ->required(),
+                                       ->required(),
                 Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
+                                          ->required()
+                                          ->maxLength(255),
                 Forms\Components\TextInput::make('short_description')
-                    ->maxLength(255),
+                                          ->maxLength(255),
                 Forms\Components\Textarea::make('long_description')
-                    ->columnSpanFull(),
+                                         ->columnSpanFull(),
+                Forms\Components\TextInput::make('default_sku')
+                                          ->label('SKU')
+                                          ->required(),
+                Forms\Components\TextInput::make('default_price')
+                                          ->numeric()
+                                          ->prefix('Rp')
+                                          ->label('Price')
+                                          ->required(),
             ]);
     }
 
@@ -42,25 +48,25 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\IconColumn::make('is_active')
-                    ->boolean(),
+                                         ->boolean(),
                 Tables\Columns\IconColumn::make('is_featured')
-                    ->boolean(),
+                                         ->boolean(),
                 Tables\Columns\TextColumn::make('title')
-                    ->searchable(),
+                                         ->searchable(),
                 Tables\Columns\TextColumn::make('short_description')
-                    ->searchable(),
+                                         ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                                         ->dateTime()
+                                         ->sortable()
+                                         ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                                         ->dateTime()
+                                         ->sortable()
+                                         ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                                         ->dateTime()
+                                         ->sortable()
+                                         ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -88,18 +94,18 @@ class ProductResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProducts::route('/'),
+            'index'  => Pages\ListProducts::route('/'),
             'create' => Pages\CreateProduct::route('/create'),
-            'view' => Pages\ViewProduct::route('/{record}'),
-            'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'view'   => Pages\ViewProduct::route('/{record}'),
+            'edit'   => Pages\EditProduct::route('/{record}/edit'),
         ];
     }
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+                     ->withoutGlobalScopes([
+                         SoftDeletingScope::class,
+                     ]);
     }
 }

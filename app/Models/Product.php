@@ -21,4 +21,29 @@ class Product extends Model
         'is_active'   => 'boolean',
         'is_featured' => 'boolean',
     ];
+
+    protected $appends = [
+        'default_sku',
+        'default_price',
+    ];
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class, 'product_id');
+    }
+
+    public function defaultVariant()
+    {
+        return $this->variants()->first();
+    }
+
+    public function getDefaultSkuAttribute()
+    {
+        return $this->defaultVariant()->sku;
+    }
+
+    public function getDefaultPriceAttribute()
+    {
+        return $this->defaultVariant()->basePrices()->first()->price;
+    }
 }
