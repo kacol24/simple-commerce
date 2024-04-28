@@ -12,7 +12,22 @@ class Customer extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'is_active',
         'name',
         'phone',
     ];
+
+    protected $appends = [
+        'name_with_phone',
+    ];
+
+    public function getNameWithPhoneAttribute()
+    {
+        return '['.$this->phone.'] '.$this->name;
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

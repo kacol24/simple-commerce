@@ -21,6 +21,8 @@ class CustomerResource extends Resource
 
     protected static ?string $navigationGroup = 'Sales';
 
+    protected static ?int $navigationSort = 20;
+
     public static function form(Form $form): Form
     {
         return $form
