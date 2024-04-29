@@ -17,6 +17,7 @@ return new class extends Migration{
             $table->foreignId('reseller_id')->nullable();
             $table->string('order_no');
             $table->unsignedBigInteger('sub_total');
+            $table->unsignedBigInteger('shipping_total');
             $table->unsignedBigInteger('discount_total');
             $table->unsignedBigInteger('fees_total');
             $table->unsignedBigInteger('grand_total');

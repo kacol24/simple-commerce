@@ -9,6 +9,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\ManageRecords;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -89,5 +90,10 @@ class ManageOrders extends ManageRecords
         \DB::commit();
 
         return $order;
+    }
+
+    public function getMaxContentWidth(): MaxWidth|string|null
+    {
+        return MaxWidth::Full;
     }
 }

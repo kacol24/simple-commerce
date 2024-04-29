@@ -23,6 +23,8 @@ class OrderResource extends Resource
 
     protected static ?int $navigationSort = 10;
 
+    protected static ?string $recordTitleAttribute = 'order_no';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -64,33 +66,38 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('channel_id')
-                                         ->numeric()
-                                         ->sortable(),
-                Tables\Columns\TextColumn::make('customer_id')
-                                         ->numeric()
-                                         ->sortable(),
-                Tables\Columns\TextColumn::make('reseller_id')
-                                         ->numeric()
-                                         ->sortable(),
                 Tables\Columns\TextColumn::make('order_no')
+                                         ->label('Order No')
+                                         ->sortable()
                                          ->searchable(),
+                Tables\Columns\TextColumn::make('customer.name')
+                                         ->searchable()
+                                         ->description(fn(Order $record): string => $record->customer->phone),
+                Tables\Columns\TextColumn::make('reseller.name')
+                                         ->searchable()
+                                         ->description(fn(Order $record): string => optional($record->reseller)->phone)
+                                         ->toggleable(),
+                Tables\Columns\TextColumn::make('channel.name')
+                                         ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('sub_total')
-                                         ->numeric()
-                                         ->sortable(),
+                                         ->numeric(thousandsSeparator: '.')
+                                         ->prefix('Rp')
+                                         ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('discount_total')
-                                         ->numeric()
-                                         ->sortable(),
+                                         ->numeric(thousandsSeparator: '.')
+                                         ->prefix('Rp')
+                                         ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('fees_total')
-                                         ->numeric()
-                                         ->sortable(),
+                                         ->numeric(thousandsSeparator: '.')
+                                         ->prefix('Rp')
+                                         ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('grand_total')
-                                         ->numeric()
-                                         ->sortable(),
+                                         ->numeric(thousandsSeparator: '.')
+                                         ->prefix('Rp'),
                 Tables\Columns\TextColumn::make('created_at')
                                          ->dateTime()
                                          ->sortable()
-                                         ->toggleable(isToggledHiddenByDefault: true),
+                                         ->toggleable(),
                 Tables\Columns\TextColumn::make('updated_at')
                                          ->dateTime()
                                          ->sortable()
@@ -123,9 +130,9 @@ class OrderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ManageOrders::route('/'),
+            'index' => Pages\ManageOrders::route('/'),
             //'create' => Pages\CreateOrder::route('/create'),
-            'edit'   => Pages\EditOrder::route('/{record}/edit'),
+            'edit'  => Pages\EditOrder::route('/{record}/edit'),
         ];
     }
 }

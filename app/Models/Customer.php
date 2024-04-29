@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasWhatsapp;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Customer extends Model
 {
