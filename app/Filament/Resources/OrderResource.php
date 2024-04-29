@@ -75,8 +75,8 @@ class OrderResource extends Resource
                                          ->description(fn(Order $record): string => $record->customer->phone),
                 Tables\Columns\TextColumn::make('reseller.name')
                                          ->searchable()
-                                         ->description(fn(Order $record): string => optional($record->reseller)->phone)
-                                         ->toggleable(),
+                                         ->description(fn(Order $record) => optional($record->reseller)->phone)
+                                         ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('channel.name')
                                          ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('sub_total')
@@ -92,6 +92,9 @@ class OrderResource extends Resource
                                          ->prefix('Rp')
                                          ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('grand_total')
+                                         ->numeric(thousandsSeparator: '.')
+                                         ->prefix('Rp'),
+                Tables\Columns\TextColumn::make('paid_total')
                                          ->numeric(thousandsSeparator: '.')
                                          ->prefix('Rp'),
                 Tables\Columns\TextColumn::make('created_at')
@@ -123,7 +126,10 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ItemsRelationManager::class,
+            RelationManagers\DiscountsRelationManager::class,
+            RelationManagers\FeesRelationManager::class,
+            RelationManagers\PaymentsRelationManager::class,
         ];
     }
 
