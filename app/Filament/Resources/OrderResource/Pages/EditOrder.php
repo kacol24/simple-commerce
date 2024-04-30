@@ -3,24 +3,18 @@
 namespace App\Filament\Resources\OrderResource\Pages;
 
 use App\Filament\Resources\OrderResource;
-use App\Filament\Resources\ProductResource;
 use App\Models\Order;
-use App\Models\Product;
 use Filament\Actions;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\View;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Database\Eloquent\Builder;
@@ -209,101 +203,5 @@ class EditOrder extends EditRecord
         $order->refresh();
 
         $this->refreshFormData($fields);
-    }
-
-    public static function getItemsRepeater(): Repeater
-    {
-        return Repeater::make('items')
-                       ->relationship()
-                       ->schema([
-                           Select::make('product_id')
-                                 ->label('Product')
-                                 ->options(Product::query()->pluck('title', 'id'))
-                                 ->native(false)
-                                 ->preload()
-                                 ->required()
-                                 ->reactive()
-                                 ->afterStateUpdated(
-                                     function ($state, Set $set) {
-                                         $price = Product::find($state)->default_price ?? 0;
-
-                                         $set('price', $price);
-                                     }
-                                 )
-                                 ->distinct()
-                                 ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                 ->columnSpan([
-                                     'md' => 5,
-                                 ])
-                                 ->searchable(),
-                           TextInput::make('price')
-                                    ->label('Price')
-                                    ->disabled()
-                                    ->dehydrated()
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->required()
-                                    ->columnSpan([
-                                        'md' => 2,
-                                    ]),
-                           TextInput::make('discount')
-                                    ->label('Discount')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->reactive()
-                                    ->prefix('Rp')
-                                    ->columnSpan([
-                                        'md' => 2,
-                                    ]),
-                           TextInput::make('quantity')
-                                    ->label('Qty.')
-                                    ->numeric()
-                                    ->default(1)
-                                    ->reactive()
-                                    ->columnSpan([
-                                        'md' => 1,
-                                    ])
-                                    ->required(),
-                           Placeholder::make('total')
-                                      ->content(function (Get $get): string {
-                                          $price = $get('price') ?? 0;
-                                          $discount = $get('discount') ?? 0;
-                                          $qty = $get('quantity') ?? 1;
-
-                                          $total = ($price * $qty) - ($discount * $qty);
-
-                                          return 'Rp'.number_format($total, 0, ',', '.');
-                                      })
-                                      ->columnSpan([
-                                          'md' => 2,
-                                      ]),
-                       ])
-                       ->extraItemActions([
-                           Action::make('openProduct')
-                                 ->tooltip('Open product')
-                                 ->icon('heroicon-m-arrow-top-right-on-square')
-                                 ->url(function (array $arguments, Repeater $component): ?string {
-                                     $itemData = $component->getRawItemState($arguments['item']);
-
-                                     $product = Product::find($itemData['product_id']);
-
-                                     if (! $product) {
-                                         return null;
-                                     }
-
-                                     return ProductResource::getUrl('edit', ['record' => $product]);
-                                 }, shouldOpenInNewTab: true)
-                                 ->hidden(fn(
-                                     array $arguments,
-                                     Repeater $component
-                                 ): bool => blank($component->getRawItemState($arguments['item'])['product_id'])),
-                       ])
-                       ->orderColumn('sort')
-                       ->defaultItems(1)
-                       ->hiddenLabel()
-                       ->columns([
-                           'md' => 12,
-                       ])
-                       ->required();
     }
 }
