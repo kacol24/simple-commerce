@@ -15,6 +15,7 @@ return new class extends Migration{
             $table->foreignId('channel_id');
             $table->foreignId('customer_id');
             $table->foreignId('reseller_id')->nullable();
+            $table->string('status')->index();
             $table->string('order_no')->unique()->index();
             $table->unsignedBigInteger('sub_total')->index();
             $table->unsignedBigInteger('shipping_total')->default(0)->index();

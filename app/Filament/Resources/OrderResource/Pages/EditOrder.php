@@ -4,6 +4,9 @@ namespace App\Filament\Resources\OrderResource\Pages;
 
 use App\Filament\Resources\OrderResource;
 use App\Models\Order;
+use App\States\Order\Cancelled;
+use App\States\Order\Completed;
+use App\States\Order\Refunded;
 use Filament\Actions;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Group;
@@ -21,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\HtmlString;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class EditOrder extends EditRecord
 {
@@ -77,8 +81,8 @@ class EditOrder extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $data['shipping_method'] = $data['shipping_breakdown']['shipping_method'];
-        $data['shipping_date'] = $data['shipping_breakdown']['shipping_date'];
+        $data['shipping_method'] = optional($data['shipping_breakdown'])['shipping_method'];
+        $data['shipping_date'] = optional($data['shipping_breakdown'])['shipping_date'];
 
         return $data;
     }
@@ -94,6 +98,10 @@ class EditOrder extends EditRecord
         \DB::beginTransaction();
         $record->update($data);
 
+        if ($record->status->canTransitionTo($data['status'])) {
+            $record->status->transitionTo($data['status']);
+        }
+
         $order = app(Pipeline::class)
             ->send($record->refresh())
             ->through(config('commerce.order.pipelines'))
@@ -102,7 +110,7 @@ class EditOrder extends EditRecord
             });
         \DB::commit();
 
-        return $order;
+        return $order->refresh();
     }
 
     public static function getOrderDetailsSection()
@@ -186,16 +194,28 @@ class EditOrder extends EditRecord
                  ->schema([
                      Select::make('status')
                            ->label('Status')
-                           ->relationship('channel', 'name'),
+                           ->native(false)
+                           ->selectablePlaceholder(false)
+                           ->options(Order::getStatusDropdown())
+                           ->disableOptionWhen(function ($value, Component $livewire) {
+                               return ! in_array($value, $livewire->getRecord()->status->transitionableStates());
+                           })
+                           ->disabled(function (Component $livewire) {
+                               return ! in_array(
+                                   $livewire->getRecord()->status,
+                                   [Completed::class, Cancelled::class, Refunded::class]
+                               );
+                           }),
                      Select::make('channel_id')
                            ->required()
                            ->relationship('channel', 'name'),
                      Placeholder::make('created_at')
                                 ->label('Placed At')
+                                ->hint(function ($record) {
+                                    return $record->created_at->diffForHumans();
+                                })
                                 ->content(function ($record) {
-                                    return new HtmlString(
-                                        '<abbr title="'.$record->created_at.'">'.$record->created_at->diffForHumans().'</abbr>'
-                                    );
+                                    return $record->created_at->toDayDateTimeString();
                                 }),
                  ]),
             Group::make()

@@ -18,6 +18,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
@@ -109,6 +110,7 @@ class ItemsRelationManager extends RelationManager
                          'default' => 2,
                          'md'      => 5,
                      ]),
+                TextInput::make('notes'),
             ])
             ->columns(1);
     }
@@ -118,24 +120,39 @@ class ItemsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\TextColumn::make('sku')
-                                         ->label('SKU'),
-                Tables\Columns\TextColumn::make('title'),
+                Tables\Columns\TextColumn::make('title')
+                                         ->label('Product')
+                                         ->grow(false)
+                                         ->description(
+                                             function ($record) {
+                                                 return $record->sku;
+                                             }
+                                         ),
+                Tables\Columns\TextInputColumn::make('notes'),
                 Tables\Columns\TextColumn::make('price')
                                          ->prefix('Rp')
                                          ->numeric(thousandsSeparator: '.'),
                 Tables\Columns\TextColumn::make('quantity')
-                                         ->label('Qty.'),
+                                         ->label('Qty.')
+                                         ->summarize([
+                                             Sum::make(),
+                                         ]),
                 Tables\Columns\TextColumn::make('sub_total')
                                          ->prefix('Rp')
                                          ->numeric(thousandsSeparator: '.'),
                 Tables\Columns\TextColumn::make('discount_total')
                                          ->label('Discount')
-                                         ->prefix('- Rp')
+                                         ->prefix('Rp')
                                          ->numeric(thousandsSeparator: '.'),
                 Tables\Columns\TextColumn::make('total')
                                          ->prefix('Rp')
-                                         ->numeric(thousandsSeparator: '.'),
+                                         ->numeric(thousandsSeparator: '.')
+                                         ->summarize([
+                                             Sum::make()
+                                                ->formatStateUsing(function ($state) {
+                                                    return 'Rp'.number_format($state, 0, ',', '.');
+                                                }),
+                                         ]),
             ])
             ->filters([
                 //

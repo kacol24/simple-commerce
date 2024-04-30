@@ -5,12 +5,15 @@ namespace App\Models;
 use App\Models\Amountables\Discount;
 use App\Models\Amountables\Fee;
 use App\Models\Amountables\Payment;
+use App\States\OrderState;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Spatie\ModelStates\HasStates;
 
 class Order extends Model
 {
+    use HasStates;
     use SoftDeletes;
 
     protected $fillable = [
@@ -29,7 +32,14 @@ class Order extends Model
 
     protected $casts = [
         'shipping_breakdown' => 'json',
+        'status'             => OrderState::class,
     ];
+
+    public static function getStatusDropdown()
+    {
+        return self::getStatesFor('status')
+                   ->mapWithKeys(fn($value, $key) => [$value => (string) (new $value(self::class))]);
+    }
 
     public function channel()
     {

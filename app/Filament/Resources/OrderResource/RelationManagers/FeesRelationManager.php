@@ -7,6 +7,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Table;
 use Livewire\Component;
 
@@ -45,7 +46,13 @@ class FeesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('amount')
                                          ->prefix('Rp')
-                                         ->numeric(thousandsSeparator: '.'),
+                                         ->numeric(thousandsSeparator: '.')
+                                         ->summarize([
+                                             Sum::make()
+                                                ->formatStateUsing(function ($state) {
+                                                    return 'Rp'.number_format($state, 0, ',', '.');
+                                                }),
+                                         ]),
                 Tables\Columns\TextColumn::make('description'),
             ])
             ->filters([

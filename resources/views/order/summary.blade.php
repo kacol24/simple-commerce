@@ -55,46 +55,48 @@
                 </small>
             </td>
         </tr>
-        <tr>
-            <td colspan="2" class="pb-4">
-                <hr>
-            </td>
-        </tr>
-        <tr>
-            <th class="text-left pb-4 align-top">
-                Grand total:
-            </th>
-            <th class="text-right pb-4">
-                <u>
-                    {{ $getRecord()->formatted_grand_total }}
-                </u>
-            </th>
-        </tr>
-        <tr>
-            <td class="text-left pb-4 align-top">
-                <a href="#relationManager3" wire:click="$set('activeRelationManager', '3')">
-                    Paid total:
-                </a>
-            </td>
-            <td class="text-right pb-4">
-                ({{ $getRecord()->formatted_paid_total }})
-            </td>
-        </tr>
-        @if($getRecord()->grand_total > 0)
+        @if($getRecord()->sub_total > 0)
             <tr>
-                <td class="text-left">
-                    Amount Due:
-                </td>
-                <td class="text-right">
-                    @if($getRecord()->amount_due > 0)
-                        <ins>
-                            {{ $getRecord()->formatted_amount_due }}
-                        </ins>
-                    @else
-                        PAID
-                    @endif
+                <td colspan="2" class="pb-4">
+                    <hr>
                 </td>
             </tr>
+            <tr>
+                <th class="text-left pb-4 align-top">
+                    Grand total:
+                </th>
+                <th class="text-right pb-4">
+                    <u>
+                        {{ $getRecord()->formatted_grand_total }}
+                    </u>
+                </th>
+            </tr>
+            <tr>
+                <td class="text-left pb-4 align-top">
+                    <a href="#relationManager3" wire:click="$set('activeRelationManager', '3')">
+                        Paid total:
+                    </a>
+                </td>
+                <td class="text-right pb-4">
+                    ({{ $getRecord()->formatted_paid_total }})
+                </td>
+            </tr>
+            @if($getRecord()->grand_total > 0)
+                <tr>
+                    <td class="text-left">
+                        Amount Due:
+                    </td>
+                    <td class="text-right">
+                        @if($getRecord()->amount_due > 0)
+                            <ins>
+                                {{ $getRecord()->formatted_amount_due }}
+                            </ins>
+                        @else
+                            PAID
+                        @endif
+                    </td>
+                </tr>
+            @endif
         @endif
     </table>
 </div>
