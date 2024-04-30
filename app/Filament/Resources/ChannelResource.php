@@ -100,4 +100,14 @@ class ChannelResource extends Resource
                          SoftDeletingScope::class,
                      ]);
     }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return 'Soon';
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
+    }
 }

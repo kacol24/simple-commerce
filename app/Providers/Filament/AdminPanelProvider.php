@@ -28,8 +28,14 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('Simple Commerce')
+            ->favicon(asset('images/logo.png'))
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Emerald,
+                'warning' => Color::Yellow,
+                'info'    => Color::Sky,
+                'success' => Color::Lime,
+                'danger'  => Color::Red,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

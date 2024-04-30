@@ -2,6 +2,7 @@
 
 namespace App\States;
 
+use App\Models\Order;
 use App\States\Order\Cancelled;
 use App\States\Order\Completed;
 use App\States\Order\Draft;
@@ -18,7 +19,7 @@ use Spatie\ModelStates\StateConfig;
 
 abstract class OrderState extends State
 {
-    public function __toString(): string
+    public function friendlyName()
     {
         return Str::headline(class_basename($this));
     }

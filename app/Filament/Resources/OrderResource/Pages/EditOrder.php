@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\States\Order\Cancelled;
 use App\States\Order\Completed;
 use App\States\Order\Refunded;
-use Filament\Actions;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
@@ -33,7 +32,9 @@ class EditOrder extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            //Actions\DeleteAction::make(),
+            $this->getSaveFormAction(),
+            $this->getCancelFormAction(),
         ];
     }
 
@@ -201,8 +202,8 @@ class EditOrder extends EditRecord
                                return ! in_array($value, $livewire->getRecord()->status->transitionableStates());
                            })
                            ->disabled(function (Component $livewire) {
-                               return ! in_array(
-                                   $livewire->getRecord()->status,
+                               return in_array(
+                                   (string) $livewire->getRecord()->status,
                                    [Completed::class, Cancelled::class, Refunded::class]
                                );
                            }),
@@ -210,7 +211,6 @@ class EditOrder extends EditRecord
                            ->required()
                            ->relationship('channel', 'name'),
                      Placeholder::make('created_at')
-                                ->label('Placed At')
                                 ->hint(function ($record) {
                                     return $record->created_at->diffForHumans();
                                 })

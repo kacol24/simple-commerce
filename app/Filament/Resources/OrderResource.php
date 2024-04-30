@@ -5,13 +5,25 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
+use App\States\Order\Cancelled;
+use App\States\Order\Completed;
+use App\States\Order\Paid;
+use App\States\Order\PartialPayment;
+use App\States\Order\PendingPayment;
+use App\States\Order\Processing;
+use App\States\Order\Refunded;
+use App\States\Order\Shipped;
+use App\States\Order\UnderShipment;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class OrderResource extends Resource
 {
@@ -66,6 +78,19 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('status')
+                                         ->formatStateUsing(function ($state) {
+                                             return $state->friendlyName();
+                                         })
+                                         ->badge()
+                                         ->color(fn(string $state): string => match ($state) {
+                                             PendingPayment::class, PartialPayment::class => 'warning',
+                                             Paid::class => 'info',
+                                             Processing::class, UnderShipment::class, Shipped::class => 'primary',
+                                             Completed::class => 'success',
+                                             Cancelled::class, Refunded::class => 'danger',
+                                             default => 'gray'
+                                         }),
                 Tables\Columns\TextColumn::make('order_no')
                                          ->label('Order No')
                                          ->sortable()
@@ -109,20 +134,51 @@ class OrderResource extends Resource
                                          ->dateTime()
                                          ->sortable()
                                          ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
-                                         ->dateTime()
-                                         ->sortable()
-                                         ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                                           ->options(Order::getStatusDropdown()),
+                Filter::make('created_at')
+                      ->form([
+                          DatePicker::make('created_from')
+                                    ->placeholder(
+                                        fn($state): string => 'Dec 18, '.now()->subYear()->format('Y')
+                                    ),
+                          DatePicker::make('created_until')
+                                    ->placeholder(
+                                        fn($state): string => now()->format('M d, Y')
+                                    ),
+                      ])
+                      ->query(function (Builder $query, array $data): Builder {
+                          return $query
+                              ->when(
+                                  $data['created_from'] ?? null,
+                                  fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                              )->when(
+                                  $data['created_until'] ?? null,
+                                  fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                              );
+                      })
+                      ->indicateUsing(function (array $data): array {
+                          $indicators = [];
+                          if ($data['created_from'] ?? null) {
+                              $indicators['created_from'] = 'Order from '.Carbon::parse($data['created_from'])
+                                                                                ->toFormattedDateString();
+                          }
+                          if ($data['created_until'] ?? null) {
+                              $indicators['created_until'] = 'Order until '.Carbon::parse($data['created_until'])
+                                                                                  ->toFormattedDateString();
+                          }
+
+                          return $indicators;
+                      }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

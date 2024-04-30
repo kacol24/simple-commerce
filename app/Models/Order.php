@@ -38,7 +38,7 @@ class Order extends Model
     public static function getStatusDropdown()
     {
         return self::getStatesFor('status')
-                   ->mapWithKeys(fn($value, $key) => [$value => (string) (new $value(self::class))]);
+                   ->mapWithKeys(fn($value, $key) => [$value => (new $value(self::class))->friendlyName()]);
     }
 
     public function channel()
