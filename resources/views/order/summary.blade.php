@@ -39,6 +39,11 @@
             </td>
         </tr>
         <tr>
+            <td colspan="2" class="pb-4">
+                <hr>
+            </td>
+        </tr>
+        <tr>
             <th class="text-left pb-4">
                 Grand total:
             </th>
@@ -55,7 +60,7 @@
                 </a>
             </td>
             <td class="text-right pb-4">
-                {{ $getRecord()->formatted_paid_total }}
+                ({{ $getRecord()->formatted_paid_total }})
             </td>
         </tr>
         @if($getRecord()->amount_due)
@@ -64,7 +69,9 @@
                     Amount Due:
                 </td>
                 <td class="text-right">
-                    {{ $getRecord()->formatted_amount_due }}
+                    <ins>
+                        {{ $getRecord()->formatted_amount_due }}
+                    </ins>
                 </td>
             </tr>
         @endif

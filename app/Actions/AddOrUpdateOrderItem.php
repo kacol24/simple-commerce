@@ -15,7 +15,6 @@ class AddOrUpdateOrderItem extends AbstractAction
         $discountTotal = $payload->discount;
         $total = $subtotal - $discountTotal;
 
-        \DB::beginTransaction();
         $orderItem = $order->items()->updateOrCreate([
             'purchasable_type' => ProductVariant::class,
             'purchasable_id'   => $payload->product->id,
@@ -29,14 +28,6 @@ class AddOrUpdateOrderItem extends AbstractAction
             'discount_total'    => $discountTotal,
             'total'             => $total,
         ]);
-
-        app(Pipeline::class)
-            ->send($order->refresh())
-            ->through(config('commerce.order.pipelines'))
-            ->thenReturn(function ($order) {
-                return $order;
-            });
-        \DB::commit();
 
         return $orderItem;
     }

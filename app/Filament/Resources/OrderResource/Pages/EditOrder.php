@@ -162,8 +162,7 @@ class EditOrder extends EditRecord
                           ->seconds(false)
                           ->format('Y-m-d H:i:s')
                           ->displayFormat('d F Y, H:i')
-                          ->weekStartsOnMonday()
-                          ->closeOnDateSelection(),
+                          ->weekStartsOnMonday(),
         ];
     }
 
@@ -201,6 +200,14 @@ class EditOrder extends EditRecord
     #[On('refreshOrders')]
     public function refresh($fields): void
     {
+        $order = app(Pipeline::class)
+            ->send($this->getRecord()->refresh())
+            ->through(config('commerce.order.pipelines'))
+            ->thenReturn(function ($order) {
+                return $order;
+            });
+        $order->refresh();
+
         $this->refreshFormData($fields);
     }
 

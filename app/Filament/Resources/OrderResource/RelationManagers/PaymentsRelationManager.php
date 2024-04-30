@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Livewire\Component;
 
 class PaymentsRelationManager extends RelationManager
 {
@@ -29,8 +30,8 @@ class PaymentsRelationManager extends RelationManager
                                           ->default(0)
                                           ->required(),
                 Forms\Components\TextInput::make('description'),
-                Forms\Components\TextInput::make('amountable_type')
-                                          ->default(Payment::class),
+                Forms\Components\Hidden::make('amountable_type')
+                                       ->default(Payment::class),
             ]);
     }
 
@@ -49,11 +50,26 @@ class PaymentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                                           ->after(function (Component $livewire) {
+                                               $livewire->dispatch('refreshOrders', fields: [
+                                                   'paid_total', 'grand_total',
+                                               ]);
+                                           }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                                         ->after(function (Component $livewire) {
+                                             $livewire->dispatch('refreshOrders', fields: [
+                                                 'paid_total', 'grand_total',
+                                             ]);
+                                         }),
+                Tables\Actions\DeleteAction::make()
+                                           ->after(function (Component $livewire) {
+                                               $livewire->dispatch('refreshOrders', fields: [
+                                                   'paid_total', 'grand_total',
+                                               ]);
+                                           }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

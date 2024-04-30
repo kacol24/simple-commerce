@@ -12,10 +12,6 @@ class DeleteOrderItem extends AbstractAction
         $order = $orderItem->order;
         $orderItem->delete();
 
-        app(Pipeline::class)
-            ->send($order->refresh())
-            ->through(config('commerce.order.pipelines'));
-
         return $this;
     }
 }

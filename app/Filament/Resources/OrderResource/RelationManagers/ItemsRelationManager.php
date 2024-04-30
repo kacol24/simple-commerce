@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
 use App\Actions\AddOrUpdateOrderItem;
-use App\Actions\DeleteOrderItem;
 use App\DataObjects\AddOrUpdateOrderItemPayload;
 use App\Models\Product;
 use Filament\Forms\Components\Grid;
@@ -173,9 +172,6 @@ class ItemsRelationManager extends RelationManager
                               ]);
                           }),
                 DeleteAction::make()
-                            ->using(function (Model $record) {
-                                app()->make(DeleteOrderItem::class)->execute($record);
-                            })
                             ->after(function (Component $livewire) {
                                 $livewire->dispatch('refreshOrders', fields: [
                                     'sub_total', 'grand_total',
