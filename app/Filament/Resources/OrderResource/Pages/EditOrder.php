@@ -6,7 +6,6 @@ use App\Filament\Resources\OrderResource;
 use App\Models\Order;
 use Filament\Actions;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
@@ -42,17 +41,26 @@ class EditOrder extends EditRecord
                      ->schema([
                          Section::make('Order Details')
                                 ->schema(static::getOrderDetailsSection())
-                                ->columns(2)
-                                ->columnSpan(1),
+                                ->columns(1)
+                                ->columnSpan(1)
+                                ->collapsible(),
                          Section::make('Shipping')
                                 ->schema(static::getShippingSection())
-                                ->columns(3),
+                                ->columns([
+                                    'default' => 2,
+                                    'md'      => 3,
+                                ])
+                                ->collapsible()
+                                ->persistCollapsed(),
                      ])
                      ->columnSpan(['lg' => 2]),
                 Group::make()
                      ->schema([
                          Section::make('Order Summary')
-                                ->schema(static::getOrderSummarySection()),
+                                ->schema(static::getOrderSummarySection())
+                                ->columns([
+                                    '2xl' => 2,
+                                ]),
                          Section::make('Activity Log')
                                 ->collapsible()
                                 ->collapsed(),
@@ -100,44 +108,52 @@ class EditOrder extends EditRecord
     public static function getOrderDetailsSection()
     {
         return [
-            Select::make('customer_id')
-                  ->label('Customer')
-                  ->required()
-                  ->native(false)
-                  ->relationship(
-                      name: 'customer',
-                      titleAttribute: 'name',
-                      modifyQueryUsing: fn(Builder $query) => $query->active()
-                  )
-                  ->searchable(['name', 'phone'])
-                  ->preload()
-                  ->columnSpan(2)
-                  ->hint(function (Order $order) {
-                      return new HtmlString(
-                          '<a target="_blank" href="'.$order->customer->whatsapp_url.'">+62 '.$order->customer->phone.'</a>'
-                      );
-                  })->columnSpan(1),
-            Select::make('reseller_id')
-                  ->label('Reseller')
-                  ->relationship(
-                      name: 'reseller',
-                      titleAttribute: 'name',
-                  )
-                  ->searchable(['name', 'phone'])
-                  ->preload()
-                  ->different('customer_id')
-                  ->columnSpan(2)
-                  ->hint(function (Order $order) {
-                      if (! $order->reseller) {
-                          return false;
-                      }
+            Group::make()
+                 ->schema([
+                     Select::make('customer_id')
+                           ->label('Customer')
+                           ->required()
+                           ->native(false)
+                           ->relationship(
+                               name: 'customer',
+                               titleAttribute: 'name',
+                               modifyQueryUsing: fn(Builder $query) => $query->active()
+                           )
+                           ->searchable(['name', 'phone'])
+                           ->preload()
+                           ->getOptionLabelFromRecordUsing(function (Model $customer) {
+                               return '['.$customer->friendly_phone.'] '.$customer->name;
+                           })
+                           ->hint(function (Order $order) {
+                               return new HtmlString(
+                                   '<a target="_blank" href="'.$order->customer->whatsapp_url.'">+62 '.$order->customer->friendly_phone.'</a>'
+                               );
+                           })->columnSpan(1),
+                     Select::make('reseller_id')
+                           ->label('Reseller')
+                           ->relationship(
+                               name: 'reseller',
+                               titleAttribute: 'name',
+                           )
+                           ->searchable(['name', 'phone'])
+                           ->preload()
+                           ->getOptionLabelFromRecordUsing(function (Model $customer) {
+                               return '['.$customer->friendly_phone.'] '.$customer->name;
+                           })
+                           ->different('customer_id')
+                           ->hint(function (Order $order) {
+                               if (! $order->reseller) {
+                                   return false;
+                               }
 
-                      return new HtmlString(
-                          '<a target="_blank" href="'.$order->reseller->whatsapp_url.'">+62 '.$order->reseller->phone.'</a>'
-                      );
-                  })->columnSpan(1),
-            RichEditor::make('notes')
-                      ->columnSpan(2),
+                               return new HtmlString(
+                                   '<a target="_blank" href="'.$order->reseller->whatsapp_url.'">+62 '.$order->reseller->phone.'</a>'
+                               );
+                           })
+                           ->columnSpan(1),
+                 ])
+                 ->columns(2),
+            RichEditor::make('notes'),
         ];
     }
 
@@ -151,7 +167,10 @@ class EditOrder extends EditRecord
                      ->prefix('Rp')
                      ->columnSpan(1),
             DateTimePicker::make('shipping_date')
-                          ->columnSpan(1)
+                          ->columnSpan([
+                              'default' => 'full',
+                              'md'      => 1,
+                          ])
                           ->native(false)
                           ->seconds(false)
                           ->format('Y-m-d H:i:s')
@@ -163,31 +182,27 @@ class EditOrder extends EditRecord
     public static function getOrderSummarySection()
     {
         return [
-            Grid::make()
-                ->schema([
-                    Group::make()
-                         ->schema([
-                             Select::make('status')
-                                   ->label('Status')
-                                   ->relationship('channel', 'name'),
-                             Select::make('channel_id')
-                                   ->required()
-                                   ->relationship('channel', 'name'),
-                             Placeholder::make('created_at')
-                                        ->label('Placed At')
-                                        ->content(function ($record) {
-                                            return new HtmlString(
-                                                '<abbr title="'.$record->created_at.'">'.$record->created_at->diffForHumans().'</abbr>'
-                                            );
-                                        }),
-                         ]),
-                    Group::make()
-                         ->extraAttributes(['class' => 'text-right'])
-                         ->schema([
-                             View::make('order.summary'),
-                         ]),
-                ])
-                ->columns(2),
+            Group::make()
+                 ->schema([
+                     Select::make('status')
+                           ->label('Status')
+                           ->relationship('channel', 'name'),
+                     Select::make('channel_id')
+                           ->required()
+                           ->relationship('channel', 'name'),
+                     Placeholder::make('created_at')
+                                ->label('Placed At')
+                                ->content(function ($record) {
+                                    return new HtmlString(
+                                        '<abbr title="'.$record->created_at.'">'.$record->created_at->diffForHumans().'</abbr>'
+                                    );
+                                }),
+                 ]),
+            Group::make()
+                 ->extraAttributes(['class' => 'text-right'])
+                 ->schema([
+                     View::make('order.summary'),
+                 ]),
         ];
     }
 

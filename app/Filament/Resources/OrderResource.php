@@ -7,7 +7,6 @@ use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationGroup;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -44,7 +43,7 @@ class OrderResource extends Resource
                                        )
                                        ->searchable(['name', 'phone'])
                                        ->getOptionLabelFromRecordUsing(function (Model $customer) {
-                                           return '['.$customer->phone.'] '.$customer->name;
+                                           return '['.$customer->friendly_phone.'] '.$customer->name;
                                        })
                                        ->preload(),
                 Forms\Components\Select::make('reseller_id')
@@ -55,7 +54,7 @@ class OrderResource extends Resource
                                        )
                                        ->searchable(['name', 'phone'])
                                        ->getOptionLabelFromRecordUsing(function (Model $customer) {
-                                           return '['.$customer->phone.'] '.$customer->name;
+                                           return '['.$customer->friendly_phone.'] '.$customer->name;
                                        })
                                        ->preload(),
                 Forms\Components\Textarea::make('notes')
@@ -73,10 +72,14 @@ class OrderResource extends Resource
                                          ->searchable(),
                 Tables\Columns\TextColumn::make('customer.name')
                                          ->searchable()
-                                         ->description(fn(Order $record): string => $record->customer->phone),
+                                         ->description(
+                                             fn(Order $record): string => '+62 '.$record->customer->friendly_phone
+                                         ),
                 Tables\Columns\TextColumn::make('reseller.name')
                                          ->searchable()
-                                         ->description(fn(Order $record) => optional($record->reseller)->phone)
+                                         ->description(
+                                             fn(Order $record) => '+62 '.optional($record->reseller)->friendly_phone
+                                         )
                                          ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('channel.name')
                                          ->toggleable(isToggledHiddenByDefault: true),

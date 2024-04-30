@@ -5,7 +5,6 @@ namespace App\Actions;
 use App\DataObjects\AddOrUpdateOrderItemPayload;
 use App\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pipeline\Pipeline;
 
 class AddOrUpdateOrderItem extends AbstractAction
 {

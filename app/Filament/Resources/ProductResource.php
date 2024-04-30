@@ -9,8 +9,10 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductResource extends Resource
@@ -26,22 +28,36 @@ class ProductResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Toggle::make('is_active')
-                                       ->required(),
+                                       ->label('Active?')
+                                       ->required()
+                                       ->columnSpan([
+                                           'md' => 2,
+                                       ]),
                 Forms\Components\TextInput::make('title')
                                           ->required()
-                                          ->maxLength(255),
-                Forms\Components\TextInput::make('short_description')
-                                          ->maxLength(255),
-                Forms\Components\Textarea::make('long_description')
-                                         ->columnSpanFull(),
+                                          ->maxLength(255)
+                                          ->columnSpan([
+                                              'md' => 1,
+                                          ]),
                 Forms\Components\TextInput::make('default_sku')
                                           ->label('SKU')
-                                          ->required(),
+                                          ->required()
+                                          ->columnSpan([
+                                              'md' => 1,
+                                          ]),
                 Forms\Components\TextInput::make('default_price')
                                           ->numeric()
                                           ->prefix('Rp')
                                           ->label('Price')
-                                          ->required(),
+                                          ->required()
+                                          ->columnSpan([
+                                              'md' => 1,
+                                          ]),
+                Forms\Components\TextInput::make('short_description')
+                                          ->label('Description')
+                                          ->maxLength(255),
+                Forms\Components\RichEditor::make('long_description')
+                                           ->columnSpanFull(),
             ]);
     }
 
@@ -49,14 +65,20 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\IconColumn::make('is_active')
-                                         ->boolean(),
-                Tables\Columns\IconColumn::make('is_featured')
-                                         ->boolean(),
                 Tables\Columns\TextColumn::make('title')
-                                         ->searchable(),
+                                         ->searchable()
+                                         ->sortable(),
+                Tables\Columns\TextColumn::make('default_price')
+                                         ->label('Price')
+                                         ->prefix('Rp')
+                                         ->numeric(thousandsSeparator: '.')
+                                         ->sortable(),
                 Tables\Columns\TextColumn::make('short_description')
-                                         ->searchable(),
+                                         ->label('Description')
+                                         ->searchable()
+                                         ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\ToggleColumn::make('is_active')
+                                           ->label('Active?'),
                 Tables\Columns\TextColumn::make('created_at')
                                          ->dateTime()
                                          ->sortable()
@@ -71,17 +93,37 @@ class ProductResource extends Resource
                                          ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\TernaryFilter::make('is_active')
+                                            ->label('Active?'),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                //Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+                    BulkAction::make('Publish')
+                              ->deselectRecordsAfterCompletion()
+                              ->requiresConfirmation()
+                              ->action(function (Collection $records) {
+                                  Product::whereIn('id', $records->pluck('id')->toArray())
+                                         ->update([
+                                             'is_active' => true,
+                                         ]);
+                              }),
+                    BulkAction::make('Un-publish')
+                              ->deselectRecordsAfterCompletion()
+                              ->requiresConfirmation()
+                              ->action(function (Collection $records) {
+                                  Product::whereIn('id', $records->pluck('id')->toArray())
+                                         ->update([
+                                             'is_active' => false,
+                                         ]);
+                              }),
+                    //Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\ForceDeleteBulkAction::make(),
+                    //Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }

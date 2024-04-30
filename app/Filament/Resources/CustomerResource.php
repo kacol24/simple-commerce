@@ -6,11 +6,14 @@ use App\Filament\Resources\CustomerResource\Pages;
 use App\Filament\Resources\CustomerResource\RelationManagers;
 use App\Models\Customer;
 use Filament\Forms;
+use Filament\Forms\Components\Group;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomerResource extends Resource
@@ -29,19 +32,21 @@ class CustomerResource extends Resource
             ->schema([
                 Forms\Components\Toggle::make('is_active')
                                        ->required()
-                                       ->columnSpan(2)
                                        ->label('Active?')
                                        ->default(true),
-                Forms\Components\TextInput::make('name')
-                                          ->required()
-                                          ->maxLength(255)
-                                          ->autofocus(),
-                Forms\Components\TextInput::make('phone')
-                                          ->tel()
-                                          ->required()
-                                          ->maxLength(20)
-                                          ->prefix('+62'),
-            ]);
+                Group::make()
+                     ->schema([
+                         Forms\Components\TextInput::make('name')
+                                                   ->required()
+                                                   ->maxLength(255),
+                         Forms\Components\TextInput::make('phone')
+                                                   ->tel()
+                                                   ->required()
+                                                   ->maxLength(20)
+                                                   ->prefix('+62'),
+                     ])
+                     ->columns(2),
+            ])->columns(1);
     }
 
     public static function table(Table $table): Table
@@ -50,14 +55,12 @@ class CustomerResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                                          ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
+                Tables\Columns\TextColumn::make('friendly_phone')
+                                         ->label('Phone')
                                          ->searchable()
-                                         ->prefix('+62 ')
-                                         ->url(fn(Customer $record): string => $record->whatsapp_url)
-                                         ->openUrlInNewTab(),
-                Tables\Columns\IconColumn::make('is_active')
-                                         ->boolean()
-                                         ->label('Active?'),
+                                         ->prefix('+62 '),
+                Tables\Columns\ToggleColumn::make('is_active')
+                                           ->label('Active?'),
                 Tables\Columns\TextColumn::make('created_at')
                                          ->dateTime()
                                          ->sortable()
@@ -72,9 +75,15 @@ class CustomerResource extends Resource
                                          ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\TernaryFilter::make('is_active')
+                                            ->label('Active?'),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
+                Tables\Actions\Action::make('whatsapp')
+                                     ->label('WhatsApp')
+                                     ->url(fn(Customer $record): string => $record->whatsapp_url)
+                                     ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
@@ -82,9 +91,27 @@ class CustomerResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+                    BulkAction::make('Publish')
+                              ->deselectRecordsAfterCompletion()
+                              ->requiresConfirmation()
+                              ->action(function (Collection $records) {
+                                  Customer::whereIn('id', $records->pluck('id')->toArray())
+                                          ->update([
+                                              'is_active' => true,
+                                          ]);
+                              }),
+                    BulkAction::make('Un-publish')
+                              ->deselectRecordsAfterCompletion()
+                              ->requiresConfirmation()
+                              ->action(function (Collection $records) {
+                                  Customer::whereIn('id', $records->pluck('id')->toArray())
+                                          ->update([
+                                              'is_active' => false,
+                                          ]);
+                              }),
+                    //Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\ForceDeleteBulkAction::make(),
+                    //Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }

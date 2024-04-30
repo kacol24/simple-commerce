@@ -27,6 +27,8 @@ class PaymentsRelationManager extends RelationManager
                                           ->maxLength(255),
                 Forms\Components\TextInput::make('amount')
                                           ->numeric()
+                                          ->prefix('Rp')
+                                          ->minValue(1)
                                           ->default(0)
                                           ->required(),
                 Forms\Components\TextInput::make('description'),

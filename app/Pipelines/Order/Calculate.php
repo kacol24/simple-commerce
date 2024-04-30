@@ -13,7 +13,11 @@ class Calculate
         $shipping = $order->shipping_total;
         $discounts = $order->discount_total;
         $fees = $order->fees_total;
-        $order->grand_total = $subtotal + $shipping - $discounts + $fees;
+        $grandTotal = $subtotal + $shipping - $discounts + $fees;
+        if ($grandTotal < 0) {
+            $grandTotal = 0;
+        }
+        $order->grand_total = $grandTotal;
         $order->save();
 
         return $next($order->refresh());
