@@ -9,6 +9,7 @@ use App\Models\Product;
 use Filament\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
@@ -16,6 +17,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\View;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -23,6 +25,7 @@ use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\HtmlString;
 use Livewire\Attributes\On;
 
@@ -49,50 +52,6 @@ class EditOrder extends EditRecord
                                 ->columnSpan(1),
                          Section::make('Shipping')
                                 ->schema(static::getShippingSection())
-                                ->headerActions([
-                                    //function ($operation) {
-                                    //    return Action::make('save_shipping')
-                                    //                 ->action(function (
-                                    //                     Section $component,
-                                    //                     EditRecord $livewire
-                                    //                 ) {
-                                    //                     $livewire->saveFormComponentOnly($component);
-                                    //
-                                    //                     Notification::make()
-                                    //                                 ->title('Rate limiting saved')
-                                    //                                 ->body('The rate limiting settings have been saved successfully.')
-                                    //                                 ->success()
-                                    //                                 ->send();
-                                    //                 })
-                                    //                 ->visible($operation === 'edit')
-                                    //                 ->after(function (Component $livewire) {
-                                    //                     $livewire->dispatch('refreshProducts');
-                                    //                 });
-                                    //},
-                                    //function ($operation) {
-                                    //    return Action::make('Remove')
-                                    //                 ->requiresConfirmation()
-                                    //                 ->color('danger')
-                                    //                 ->action(function (
-                                    //                     Section $component,
-                                    //                     EditRecord $livewire
-                                    //                 ) {
-                                    //                     $livewire->saveFormComponentOnly($component);
-                                    //
-                                    //                     Notification::make()
-                                    //                                 ->title('Rate limiting saved')
-                                    //                                 ->body('The rate limiting settings have been saved successfully.')
-                                    //                                 ->success()
-                                    //                                 ->send();
-                                    //                 })
-                                    //                 ->visible(function ($record) use ($operation) {
-                                    //                     return $operation === 'edit' && $record->shipping;
-                                    //                 })
-                                    //                 ->after(function (Component $livewire) {
-                                    //                     $livewire->dispatch('refreshProducts');
-                                    //                 });
-                                    //},
-                                ])
                                 ->columns(3),
                      ])
                      ->columnSpan(['lg' => 2]),
@@ -112,6 +71,36 @@ class EditOrder extends EditRecord
     public function getMaxContentWidth(): MaxWidth|string|null
     {
         return MaxWidth::Full;
+    }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $data['shipping_method'] = $data['shipping_breakdown']['shipping_method'];
+        $data['shipping_date'] = $data['shipping_breakdown']['shipping_date'];
+
+        return $data;
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $data['shipping_breakdown'] = [
+            'shipping_method' => $data['shipping_method'],
+            'shipping_total'  => $data['shipping_total'],
+            'shipping_date'   => $data['shipping_date'],
+        ];
+
+        \DB::beginTransaction();
+        $record->update($data);
+
+        $order = app(Pipeline::class)
+            ->send($record->refresh())
+            ->through(config('commerce.order.pipelines'))
+            ->thenReturn(function ($order) {
+                return $order;
+            });
+        \DB::commit();
+
+        return $order;
     }
 
     public static function getOrderDetailsSection()
@@ -163,7 +152,7 @@ class EditOrder extends EditRecord
         return [
             TextInput::make('shipping_method')
                      ->columnSpan(1),
-            TextInput::make('shipping_fee')
+            TextInput::make('shipping_total')
                      ->numeric()
                      ->prefix('Rp')
                      ->columnSpan(1),
@@ -181,51 +170,35 @@ class EditOrder extends EditRecord
     public static function getOrderSummarySection()
     {
         return [
-            Select::make('status')
-                  ->label('Status')
-                  ->relationship('channel', 'name'),
-            Select::make('channel_id')
-                  ->required()
-                  ->relationship('channel', 'name'),
-            Placeholder::make('created_at')
-                       ->label('Placed At')
-                       ->content(function ($record) {
-                           return $record->created_at;
-                       }),
-            Placeholder::make('sub_total')
-                       ->label('Subtotal')
-                       ->content(function ($record) {
-                           return 'Rp'.number_format($record->sub_total, 0, ',', '.');
-                       }),
-            Group::make()
-                 ->schema([
-                     Placeholder::make('shipping_total')
-                                ->label('Shipping Total')
-                                ->content(function ($record) {
-                                    return 'Rp'.number_format($record->shipping_total, 0, ',', '.');
-                                }),
-                     Placeholder::make('discount_total')
-                                ->label('Discount Total')
-                                ->content(function ($record) {
-                                    return '- Rp'.number_format($record->discount_total, 0, ',', '.');
-                                }),
-                     Placeholder::make('fees_total')
-                                ->label('Fees Total')
-                                ->content(function ($record) {
-                                    return 'Rp'.number_format($record->fees_total, 0, ',', '.');
-                                }),
-                 ])
-                 ->columns(3),
-            Placeholder::make('grand_total')
-                       ->label('Grand Total')
-                       ->content(function ($record) {
-                           return new HtmlString('<strong>Rp'.number_format($record->grand_total, 0, ',',
-                                   '.').'</strong>');
-                       }),
+            Grid::make()
+                ->schema([
+                    Group::make()
+                         ->schema([
+                             Select::make('status')
+                                   ->label('Status')
+                                   ->relationship('channel', 'name'),
+                             Select::make('channel_id')
+                                   ->required()
+                                   ->relationship('channel', 'name'),
+                             Placeholder::make('created_at')
+                                        ->label('Placed At')
+                                        ->content(function ($record) {
+                                            return new HtmlString(
+                                                '<abbr title="'.$record->created_at.'">'.$record->created_at->diffForHumans().'</abbr>'
+                                            );
+                                        }),
+                         ]),
+                    Group::make()
+                         ->extraAttributes(['class' => 'text-right'])
+                         ->schema([
+                             View::make('order.summary'),
+                         ]),
+                ])
+                ->columns(2),
         ];
     }
 
-    #[On('refreshProducts')]
+    #[On('refreshOrders')]
     public function refresh($fields): void
     {
         $this->refreshFormData($fields);
@@ -325,19 +298,5 @@ class EditOrder extends EditRecord
                            'md' => 12,
                        ])
                        ->required();
-    }
-
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        dd($data);
-    }
-
-    protected function handleRecordUpdate(Model $record, array $data): Model
-    {
-        $record->update($data);
-
-        dd($record);
-
-        return $record;
     }
 }

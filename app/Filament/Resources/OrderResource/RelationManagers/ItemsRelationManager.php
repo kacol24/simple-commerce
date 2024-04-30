@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
+use App\Actions\AddOrUpdateOrderItem;
+use App\Actions\DeleteOrderItem;
+use App\DataObjects\AddOrUpdateOrderItemPayload;
 use App\Models\Product;
-use App\Models\ProductVariant;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -12,6 +15,9 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
@@ -44,73 +50,60 @@ class ItemsRelationManager extends RelationManager
                           'md' => 12,
                       ])
                       ->searchable(),
-                TextInput::make('price')
-                         ->label('True Price')
-                         ->disabled()
-                         ->hidden()
-                         ->dehydrated()
-                         ->numeric()
-                         ->prefix('Rp')
-                         ->required()
-                         ->columnSpan([
-                             'md' => 3,
-                         ]),
-                Placeholder::make('display_price')
-                           ->label('Price')
-                           ->content(function (Get $get): string {
-                               $price = $get('price') ?? 0;
+                Grid::make()
+                    ->schema([
+                        TextInput::make('price')
+                                 ->label('True Price')
+                                 ->disabled()
+                                 ->hidden()
+                                 ->dehydrated()
+                                 ->numeric()
+                                 ->prefix('Rp')
+                                 ->required(),
+                        Placeholder::make('display_price')
+                                   ->label('Price')
+                                   ->content(function (Get $get): string {
+                                       $price = $get('price') ?? 0;
 
-                               $total = $price;
+                                       $total = $price;
 
-                               return 'Rp'.number_format($total, 0, ',', '.');
-                           })
-                           ->columnSpan([
-                               'md' => 2,
-                           ]),
-                TextInput::make('discount')
-                         ->label('Discount')
-                         ->numeric()
-                         ->default(0)
-                         ->reactive()
-                         ->prefix('- Rp')
-                         ->columnSpan([
-                             'md' => 3,
-                         ]),
-                Placeholder::make('discounted_price')
-                           ->label('Sell Price')
-                           ->content(function (Get $get): string {
-                               $price = $get('price') ?? 0;
-                               $discount = $get('discount');
-                               $total = $price - $discount;
+                                       return 'Rp'.number_format($total, 0, ',', '.');
+                                   }),
+                        TextInput::make('quantity')
+                                 ->label('Qty.')
+                                 ->numeric()
+                                 ->minValue(1)
+                                 ->default(1)
+                                 ->reactive()
+                                 ->required(),
+                        Placeholder::make('sub_total')
+                                   ->content(function (Get $get): string {
+                                       $price = $get('price') ?? 0;
+                                       $qty = $get('quantity');
+                                       $total = $price * $qty;
 
-                               return 'Rp'.number_format($total, 0, ',', '.');
-                           })
-                           ->columnSpan([
-                               'md' => 2,
-                           ]),
-                TextInput::make('quantity')
-                         ->label('Qty.')
-                         ->numeric()
-                         ->minValue(1)
-                         ->default(1)
-                         ->reactive()
-                         ->columnSpan([
-                             'md' => 2,
-                         ])
-                         ->required(),
-                Placeholder::make('total')
-                           ->content(function (Get $get): string {
-                               $price = $get('price') ?? 0;
-                               $discount = $get('discount') ?? 0;
-                               $qty = $get('quantity') ?? 1;
+                                       return 'Rp'.number_format($total, 0, ',', '.');
+                                   }),
+                        TextInput::make('discount_total')
+                                 ->label('Discount')
+                                 ->numeric()
+                                 ->minValue(0)
+                                 ->default(0)
+                                 ->reactive()
+                                 ->prefix('- Rp'),
+                        Placeholder::make('total')
+                                   ->content(function (Get $get): string {
+                                       $price = $get('price') ?? 0;
+                                       $discount = $get('discount_total') ?? 0;
+                                       $qty = $get('quantity') ?? 1;
 
-                               $total = ($price * $qty) - ($discount * $qty);
+                                       $total = ($price * $qty) - $discount;
 
-                               return 'Rp'.number_format($total, 0, ',', '.');
-                           })
-                           ->columnSpan([
-                               'md' => 3,
-                           ]),
+                                       return 'Rp'.number_format($total, 0, ',', '.');
+                                   }),
+                    ])
+                    ->columns(5)
+                    ->columnSpan(12),
             ])
             ->columns(12);
     }
@@ -126,18 +119,14 @@ class ItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('price')
                                          ->prefix('Rp')
                                          ->numeric(thousandsSeparator: '.'),
-                Tables\Columns\TextColumn::make('discount_total')
-                                         ->label('Discount')
-                                         ->prefix('- Rp')
-                                         ->numeric(thousandsSeparator: '.'),
-                Tables\Columns\TextColumn::make('sell_price')
-                                         ->label('Sell Price')
-                                         ->prefix('Rp')
-                                         ->numeric(thousandsSeparator: '.'),
                 Tables\Columns\TextColumn::make('quantity')
                                          ->label('Qty.'),
                 Tables\Columns\TextColumn::make('sub_total')
                                          ->prefix('Rp')
+                                         ->numeric(thousandsSeparator: '.'),
+                Tables\Columns\TextColumn::make('discount_total')
+                                         ->label('Discount')
+                                         ->prefix('- Rp')
                                          ->numeric(thousandsSeparator: '.'),
                 Tables\Columns\TextColumn::make('total')
                                          ->prefix('Rp')
@@ -147,50 +136,57 @@ class ItemsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
-                                           ->using(function (array $data, string $model): Model {
-                                               $order = $this->getOwnerRecord();
-                                               $product = Product::find($data['product_id']);
-                                               $subtotal = $product->default_price * $data['quantity'];
-                                               $discountTotal = $data['discount'];
-                                               $total = $subtotal - ($discountTotal * $data['quantity']);
+                CreateAction::make()
+                            ->using(function (array $data, string $model): Model {
+                                $order = $this->getOwnerRecord();
 
-                                               \DB::beginTransaction();
-                                               $orderItem = $order->items()->updateOrCreate([
-                                                   'purchasable_type' => ProductVariant::class,
-                                                   'purchasable_id'   => $data['product_id'],
-                                               ], [
-                                                   'title'             => $product->title,
-                                                   'short_description' => $product->short_description,
-                                                   'sku'               => $product->default_sku,
-                                                   'price'             => $product->default_price,
-                                                   'quantity'          => $data['quantity'],
-                                                   'sub_total'         => $subtotal,
-                                                   'discount_total'    => $discountTotal,
-                                                   'total'             => $total,
-                                               ]);
+                                $payload = AddOrUpdateOrderItemPayload::fromFilamentAction($data);
 
-                                               $order->refresh();
-                                               $sumSubtotal = $order->items->sum('total');
-                                               $order->setSubtotal($sumSubtotal);
-                                               \DB::commit();
-
-                                               return $orderItem;
-                                           })
-                                           ->after(function (Component $livewire) {
-                                               $livewire->dispatch('refreshProducts', fields: [
-                                                   'sub_total', 'grand_total',
-                                               ]);
-                                           }),
+                                return app()->make(AddOrUpdateOrderItem::class)
+                                            ->execute($order, $payload);
+                            })
+                            ->after(function (Component $livewire) {
+                                $livewire->dispatch('refreshOrder', fields: [
+                                    'sub_total', 'grand_total',
+                                ]);
+                            }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                EditAction::make()
+                          ->mutateRecordDataUsing(function ($data) {
+                              $productVariant = $data['purchasable_type']::find($data['purchasable_id']);
+                              $data['product_id'] = $productVariant->product_id;
+
+                              return $data;
+                          })
+                          ->using(function (array $data, string $model): Model {
+                              $order = $this->getOwnerRecord();
+
+                              $payload = AddOrUpdateOrderItemPayload::fromFilamentAction($data);
+
+                              return app()->make(AddOrUpdateOrderItem::class)
+                                          ->execute($order, $payload);
+                          })
+                          ->after(function (Component $livewire) {
+                              $livewire->dispatch('refreshOrders', fields: [
+                                  'sub_total', 'grand_total',
+                              ]);
+                          }),
+                DeleteAction::make()
+                            ->using(function (Model $record) {
+                                app()->make(DeleteOrderItem::class)->execute($record);
+                            })
+                            ->after(function (Component $livewire) {
+                                $livewire->dispatch('refreshOrders', fields: [
+                                    'sub_total', 'grand_total',
+                                ]);
+                            }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                //Tables\Actions\BulkActionGroup::make([
+                //    Tables\Actions\DeleteBulkAction::make(),
+                //]),
+            ])
+            ->paginated(false);
     }
 }

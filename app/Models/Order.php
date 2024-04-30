@@ -71,6 +71,56 @@ class Order extends Model
         return $this->amounts()->where('amountable_type', Payment::class);
     }
 
+    public function getFormattedSubTotalAttribute()
+    {
+        return $this->formatMoney($this->sub_total);
+    }
+
+    public function getFormattedShippingTotalAttribute()
+    {
+        return $this->formatMoney($this->shipping_total);
+    }
+
+    public function getFormattedDiscountTotalAttribute()
+    {
+        return $this->formatMoney($this->discount_total);
+    }
+
+    public function getFormattedFeesTotalAttribute()
+    {
+        return $this->formatMoney($this->fees_total);
+    }
+
+    public function getFormattedGrandTotalAttribute()
+    {
+        return $this->formatMoney($this->grand_total);
+    }
+
+    public function getFormattedPaidTotalAttribute()
+    {
+        return $this->formatMoney($this->paid_total);
+    }
+
+    public function getAmountDueAttribute()
+    {
+        return $this->grand_total - $this->paid_total;
+    }
+
+    public function getFormattedAmountDueAttribute()
+    {
+        return $this->formatMoney($this->amount_due);
+    }
+
+    private function formatMoney($value)
+    {
+        return 'Rp'.$this->numberFormat($value);
+    }
+
+    private function numberFormat($value)
+    {
+        return number_format($value, 0, ',', '.');
+    }
+
     public static function generateOrderNo(): string
     {
         $year = date('Y');
@@ -109,53 +159,5 @@ class Order extends Model
             ],
             $template
         );
-    }
-
-    public function setSubtotal($subtotal)
-    {
-        $shipping = $this->shipping_total;
-        $discount = $this->discount_total;
-        $fee = $this->fees_total;
-        $grandTotal = $subtotal + $shipping - $discount + $fee;
-
-        $this->sub_total = $subtotal;
-        $this->grand_total = $grandTotal;
-        $this->save();
-    }
-
-    public function setShippingTotal($shipping)
-    {
-        $subtotal = $this->sub_total;
-        $discount = $this->discount_total;
-        $fee = $this->fees_total;
-        $grandTotal = $subtotal + $shipping - $discount + $fee;
-
-        $this->shipping_total = $shipping;
-        $this->grand_total = $grandTotal;
-        $this->save();
-    }
-
-    public function setDiscountTotal($discount)
-    {
-        $subtotal = $this->sub_total;
-        $shipping = $this->shipping_total;
-        $fee = $this->fees_total;
-        $grandTotal = $subtotal + $shipping - $discount + $fee;
-
-        $this->discount_total = $discount;
-        $this->grand_total = $grandTotal;
-        $this->save();
-    }
-
-    public function setFeesTotal($fee)
-    {
-        $subtotal = $this->sub_total;
-        $shipping = $this->shipping_total;
-        $discount = $this->discount_total;
-        $grandTotal = $subtotal + $shipping - $discount + $fee;
-
-        $this->fees_total = $fee;
-        $this->grand_total = $grandTotal;
-        $this->save();
     }
 }

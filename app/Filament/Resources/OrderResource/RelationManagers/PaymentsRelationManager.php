@@ -13,6 +13,10 @@ class PaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'payments';
 
+    protected static ?string $label = 'payment';
+
+    protected static ?string $pluralLabel = 'payments';
+
     public function form(Form $form): Form
     {
         return $form

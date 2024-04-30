@@ -13,6 +13,10 @@ class FeesRelationManager extends RelationManager
 {
     protected static string $relationship = 'fees';
 
+    protected static ?string $label = 'fee';
+
+    protected static ?string $pluralLabel = 'fees';
+
     public function form(Form $form): Form
     {
         return $form
