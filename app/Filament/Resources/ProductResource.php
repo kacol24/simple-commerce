@@ -36,6 +36,7 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('title')
                                           ->required()
                                           ->maxLength(255)
+                                          ->autocapitalize('words')
                                           ->columnSpan([
                                               'md' => 1,
                                           ]),
