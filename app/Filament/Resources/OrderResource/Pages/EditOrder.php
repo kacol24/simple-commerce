@@ -90,9 +90,9 @@ class EditOrder extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         $data['shipping_breakdown'] = [
-            'shipping_method' => $data['shipping_method'],
-            'shipping_total'  => $data['shipping_total'],
-            'shipping_date'   => $data['shipping_date'],
+            'shipping_method' => $data['shipping_method'] ?? null,
+            'shipping_total'  => $data['shipping_total'] ?? 0,
+            'shipping_date'   => $data['shipping_date'] ?? null,
         ];
 
         \DB::beginTransaction();
