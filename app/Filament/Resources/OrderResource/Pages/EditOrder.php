@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\States\Order\Cancelled;
 use App\States\Order\Completed;
 use App\States\Order\Refunded;
+use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
@@ -32,9 +33,7 @@ class EditOrder extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            //Actions\DeleteAction::make(),
-            $this->getSaveFormAction(),
-            $this->getCancelFormAction(),
+            DeleteAction::make(),
         ];
     }
 
