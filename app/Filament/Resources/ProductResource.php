@@ -117,26 +117,26 @@ class ProductResource extends Resource
             ])
             ->actions([
                 //Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                                         ->slideOver(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    BulkAction::make('Publish')
+                    BulkAction::make('publish_unpublish')
+                              ->label('Publish/Un-publish')
                               ->deselectRecordsAfterCompletion()
+                              ->form([
+                                  ToggleButtons::make('is_active')
+                                               ->label('Active?')
+                                               ->inline()
+                                               ->required()
+                                               ->boolean(),
+                              ])
                               ->requiresConfirmation()
-                              ->action(function (Collection $records) {
+                              ->action(function (array $data, Collection $records) {
                                   Product::whereIn('id', $records->pluck('id')->toArray())
                                          ->update([
-                                             'is_active' => true,
-                                         ]);
-                              }),
-                    BulkAction::make('Un-publish')
-                              ->deselectRecordsAfterCompletion()
-                              ->requiresConfirmation()
-                              ->action(function (Collection $records) {
-                                  Product::whereIn('id', $records->pluck('id')->toArray())
-                                         ->update([
-                                             'is_active' => false,
+                                             'is_active' => (bool) $data['is_active'],
                                          ]);
                               }),
                     //Tables\Actions\DeleteBulkAction::make(),
