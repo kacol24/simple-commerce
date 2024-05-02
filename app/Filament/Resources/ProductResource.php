@@ -6,6 +6,7 @@ use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use Filament\Forms;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -30,21 +31,21 @@ class ProductResource extends Resource
                 Forms\Components\Toggle::make('is_active')
                                        ->label('Active?')
                                        ->required()
-                                       ->columnSpan([
-                                           'md' => 2,
-                                       ]),
+                                       ->columnSpanFull(),
                 Forms\Components\TextInput::make('title')
                                           ->required()
                                           ->maxLength(255)
                                           ->autocapitalize('words')
                                           ->columnSpan([
-                                              'md' => 1,
+                                              'default' => 'full',
+                                              'md'      => 1,
                                           ]),
                 Forms\Components\TextInput::make('default_sku')
                                           ->label('SKU')
                                           ->required()
                                           ->columnSpan([
-                                              'md' => 1,
+                                              'default' => 'full',
+                                              'md'      => 1,
                                           ]),
                 Forms\Components\TextInput::make('default_price')
                                           ->numeric()
@@ -54,11 +55,22 @@ class ProductResource extends Resource
                                           ->columnSpan([
                                               'md' => 1,
                                           ]),
+                Forms\Components\TextInput::make('default_cost_price')
+                                          ->numeric()
+                                          ->prefix('Rp')
+                                          ->label('Cost Price')
+                                          ->columnSpan([
+                                              'md' => 1,
+                                          ]),
                 Forms\Components\TextInput::make('short_description')
                                           ->label('Description')
-                                          ->maxLength(255),
+                                          ->maxLength(255)
+                                          ->columnSpanFull(),
                 Forms\Components\RichEditor::make('long_description')
                                            ->columnSpanFull(),
+            ])
+            ->columns([
+                'default' => 2,
             ]);
     }
 
@@ -71,6 +83,11 @@ class ProductResource extends Resource
                                          ->sortable(),
                 Tables\Columns\TextColumn::make('default_price')
                                          ->label('Price')
+                                         ->prefix('Rp')
+                                         ->numeric(thousandsSeparator: '.')
+                                         ->sortable(),
+                Tables\Columns\TextColumn::make('default_cost_price')
+                                         ->label('Cost Price')
                                          ->prefix('Rp')
                                          ->numeric(thousandsSeparator: '.')
                                          ->sortable(),

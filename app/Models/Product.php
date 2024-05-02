@@ -25,6 +25,7 @@ class Product extends Model
     protected $appends = [
         'default_sku',
         'default_price',
+        'default_cost_price',
     ];
 
     public function variants()
@@ -45,5 +46,10 @@ class Product extends Model
     public function getDefaultPriceAttribute()
     {
         return $this->defaultVariant()->basePrices()->first()->price;
+    }
+
+    public function getDefaultCostPriceAttribute()
+    {
+        return $this->defaultVariant()->basePrices()->first()->cost_price;
     }
 }
