@@ -28,6 +28,15 @@ class Product extends Model
         'default_cost_price',
     ];
 
+    protected $with = [
+        'variants',
+    ];
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
     public function variants()
     {
         return $this->hasMany(ProductVariant::class, 'product_id');

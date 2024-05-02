@@ -10,6 +10,8 @@ class AddOrUpdateOrderItemPayload
         public Product $product,
         public $quantity,
         public $discount = 0,
+        public $options = null,
+        public $notes = null,
     ) {
     }
 
@@ -20,7 +22,9 @@ class AddOrUpdateOrderItemPayload
         return new self(
             $product,
             $data['quantity'],
-            $data['discount_total'] ?? 0
+            $data['discount_total'] ?? 0,
+            $data['option'],
+            $data['notes']
         );
     }
 }

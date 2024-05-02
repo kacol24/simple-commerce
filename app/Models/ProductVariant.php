@@ -14,6 +14,10 @@ class ProductVariant extends Model
         'sku',
     ];
 
+    protected $with = [
+        'prices',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id')->withTrashed();

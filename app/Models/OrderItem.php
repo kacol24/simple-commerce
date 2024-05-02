@@ -23,6 +23,10 @@ class OrderItem extends Model
         'sort',
     ];
 
+    protected $casts = [
+        'option' => 'array',
+    ];
+
     public function order()
     {
         return $this->belongsTo(Order::class);

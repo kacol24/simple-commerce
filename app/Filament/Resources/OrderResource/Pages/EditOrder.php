@@ -8,6 +8,7 @@ use App\States\Order\Cancelled;
 use App\States\Order\Completed;
 use App\States\Order\Refunded;
 use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
@@ -30,9 +31,16 @@ class EditOrder extends EditRecord
 {
     protected static string $resource = OrderResource::class;
 
+    protected function getFormActions(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [
+            $this->getSaveFormAction(),
+            $this->getCancelFormAction(),
             DeleteAction::make(),
         ];
     }
@@ -54,8 +62,7 @@ class EditOrder extends EditRecord
                                     'default' => 2,
                                     'md'      => 3,
                                 ])
-                                ->collapsible()
-                                ->persistCollapsed(),
+                                ->collapsible(),
                      ])
                      ->columnSpan(['lg' => 2]),
                 Group::make()
@@ -64,10 +71,15 @@ class EditOrder extends EditRecord
                                 ->schema(static::getOrderSummarySection())
                                 ->columns([
                                     '2xl' => 2,
+                                ])
+                                ->headerActions([
+                                    Action::make('Activity Log')
+                                          ->link()
+                                          ->icon('heroicon-s-queue-list')
+                                          ->modalContent(view('order.timeline'))
+                                          ->modalSubmitAction(false)
+                                          ->modalCancelAction(false),
                                 ]),
-                         Section::make('Activity Log')
-                                ->collapsible()
-                                ->collapsed(),
                      ])
                      ->columnSpan(['lg' => 1]),
             ])
