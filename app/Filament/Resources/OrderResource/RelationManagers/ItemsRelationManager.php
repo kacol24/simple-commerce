@@ -7,10 +7,10 @@ use App\Actions\UpdateOrderItem;
 use App\DataObjects\AddOrUpdateOrderItemPayload;
 use App\Models\Product;
 use App\Models\ProductOption;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -24,6 +24,7 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
@@ -85,94 +86,100 @@ class ItemsRelationManager extends RelationManager
                       ->dehydrated()
                       ->required()
                       ->hidden(),
-                Repeater::make('option')
-                        ->label('Options')
-                        ->schema([
-                            Select::make('key')
-                                  ->label('Option')
-                                  ->options($productOptions->pluck('name', 'name'))
-                                  ->native(false)
-                                  ->preload()
-                                  ->required()
-                                  ->live(onBlur: true)
-                                  ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                  ->selectablePlaceholder(false)
-                                  ->searchable(),
-                            TextInput::make('value')
-                                     ->label('Value')
-                                     ->debounce()
-                                     ->required(),
-                        ])
-                        ->columns(2)
-                        ->defaultItems(0)
-                        ->reorderable(false)
-                        ->reorderableWithDragAndDrop(false)
-                        ->collapsible()
-                        ->collapsed()
-                        ->grid(2)
-                        ->itemLabel(
-                            function ($state) {
-                                if (! $state['key']) {
-                                    return null;
-                                }
+                Grid::make()
+                    ->schema([
+                        Group::make()
+                             ->schema([
+                                 Placeholder::make('display_price')
+                                            ->label('Price')
+                                            ->content(function (Get $get): string {
+                                                $price = $get('price') ?? 0;
 
-                                return $state['key'].': '.$state['value'];
-                            }
-                        ),
-                Group::make()
-                     ->schema([
-                         Placeholder::make('display_price')
-                                    ->label('Price')
-                                    ->content(function (Get $get): string {
-                                        $price = $get('price') ?? 0;
+                                                $total = $price;
 
-                                        $total = $price;
+                                                return 'Rp'.number_format($total, 0, ',', '.');
+                                            }),
+                                 TextInput::make('quantity')
+                                          ->label('Qty.')
+                                          ->numeric()
+                                          ->minValue(1)
+                                          ->default(1)
+                                          ->reactive()
+                                          ->required(),
+                                 Placeholder::make('sub_total')
+                                            ->content(function (Get $get): string {
+                                                $price = $get('price') ?? 0;
+                                                $qty = $get('quantity');
+                                                $total = $price * $qty;
 
-                                        return 'Rp'.number_format($total, 0, ',', '.');
-                                    }),
-                         TextInput::make('quantity')
-                                  ->label('Qty.')
-                                  ->numeric()
-                                  ->minValue(1)
-                                  ->default(1)
-                                  ->reactive()
-                                  ->required(),
-                         Placeholder::make('sub_total')
-                                    ->content(function (Get $get): string {
-                                        $price = $get('price') ?? 0;
-                                        $qty = $get('quantity');
-                                        $total = $price * $qty;
+                                                return 'Rp'.number_format($total, 0, ',', '.');
+                                            })
+                                            ->columnSpan(1),
+                                 TextInput::make('discount_total')
+                                          ->label('Discount')
+                                          ->numeric()
+                                          ->minValue(0)
+                                          ->default(0)
+                                          ->reactive()
+                                          ->prefix('- Rp')
+                                          ->columnSpan(1),
+                                 Placeholder::make('total')
+                                            ->content(function (Get $get): string {
+                                                $price = $get('price') ?? 0;
+                                                $discount = (int) $get('discount_total') ?? 0;
+                                                $qty = $get('quantity') ?? 1;
 
-                                        return 'Rp'.number_format($total, 0, ',', '.');
-                                    })
-                                    ->columnSpan(1),
-                         TextInput::make('discount_total')
-                                  ->label('Discount')
-                                  ->numeric()
-                                  ->minValue(0)
-                                  ->default(0)
-                                  ->reactive()
-                                  ->prefix('- Rp')
-                                  ->columnSpan(1),
-                         Placeholder::make('total')
-                                    ->content(function (Get $get): string {
-                                        $price = $get('price') ?? 0;
-                                        $discount = (int) $get('discount_total') ?? 0;
-                                        $qty = $get('quantity') ?? 1;
+                                                $total = ($price * $qty) - $discount;
 
-                                        $total = ($price * $qty) - $discount;
-
-                                        return 'Rp'.number_format($total, 0, ',', '.');
-                                    })
-                                    ->columnSpan([
-                                        'default' => 2,
-                                        'md'      => 1,
-                                    ]),
-                     ])
-                     ->columns([
-                         'default' => 2,
-                         'md'      => 5,
-                     ]),
+                                                return 'Rp'.number_format($total, 0, ',', '.');
+                                            })
+                                            ->columnSpan([
+                                                'default' => 2,
+                                                'md'      => 1,
+                                            ]),
+                             ])
+                             ->columns([
+                                 'default' => 2,
+                             ])
+                             ->columnSpan(4),
+                        TableRepeater::make('option')
+                                     ->label('Options')
+                                     ->schema([
+                                         Select::make('key')
+                                               ->label('Option')
+                                               ->options($productOptions->pluck('name', 'name'))
+                                               ->native(false)
+                                               ->preload()
+                                               ->required()
+                                               ->live(onBlur: true)
+                                               ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                               ->selectablePlaceholder(false)
+                                               ->searchable(),
+                                         TextInput::make('value')
+                                                  ->label('Value')
+                                                  ->debounce()
+                                                  ->required(),
+                                     ])
+                                     ->colStyles(['key' => 'padding-bottom: 16px'])
+                                     ->defaultItems(0)
+                                     ->reorderable(false)
+                                     ->reorderableWithDragAndDrop(false)
+                                     ->collapsible()
+                                     //->columns(2)
+                                     //->grid(2)
+                                     //->itemLabel(
+                                     //    function ($state) {
+                                     //        if (! $state['key']) {
+                                     //            return null;
+                                     //        }
+                                     //
+                                     //        return $state['key'].': '.$state['value'];
+                                     //    }
+                                     //)
+                                     ->columnSpan(6),
+                    ])
+                    ->columnSpanFull()
+                    ->columns(10),
                 TextInput::make('notes'),
             ])
             ->columns(1);
