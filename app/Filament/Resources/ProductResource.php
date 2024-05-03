@@ -80,7 +80,10 @@ class ProductResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                                          ->searchable()
-                                         ->sortable(),
+                                         ->sortable()
+                                         ->description(function ($record) {
+                                             return '['. $record->default_sku .']';
+                                         }),
                 Tables\Columns\TextColumn::make('default_price')
                                          ->label('Price')
                                          ->prefix('Rp')
@@ -90,7 +93,8 @@ class ProductResource extends Resource
                                          ->label('Cost Price')
                                          ->prefix('Rp')
                                          ->numeric(thousandsSeparator: '.')
-                                         ->sortable(),
+                                         ->sortable()
+                                         ->toggleable(),
                 Tables\Columns\TextColumn::make('short_description')
                                          ->label('Description')
                                          ->searchable()

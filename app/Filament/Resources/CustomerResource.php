@@ -41,7 +41,6 @@ class CustomerResource extends Resource
                                                    ->maxLength(255),
                          Forms\Components\TextInput::make('phone')
                                                    ->tel()
-                                                   ->required()
                                                    ->maxLength(20)
                                                    ->prefix('+62'),
                      ])

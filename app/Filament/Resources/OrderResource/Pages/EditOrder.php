@@ -131,9 +131,20 @@ class EditOrder extends EditRecord
                            ->searchable(['name', 'phone'])
                            ->preload()
                            ->getOptionLabelFromRecordUsing(function (Model $customer) {
-                               return '['.$customer->friendly_phone.'] '.$customer->name;
+                               $label = [];
+                               if ($customer->phone) {
+                                   $label[] = '['.$customer->phone.']';
+                               }
+
+                               $label[] = $customer->name;
+
+                               return implode(' ', $label);
                            })
                            ->hint(function (Order $order) {
+                               if (! $order->customer->phone) {
+                                   return false;
+                               }
+
                                return new HtmlString(
                                    '<a target="_blank" href="'.$order->customer->whatsapp_url.'">+62 '.$order->customer->friendly_phone.'</a>'
                                );
@@ -147,7 +158,14 @@ class EditOrder extends EditRecord
                            ->searchable(['name', 'phone'])
                            ->preload()
                            ->getOptionLabelFromRecordUsing(function (Model $customer) {
-                               return '['.$customer->friendly_phone.'] '.$customer->name;
+                               $label = [];
+                               if ($customer->phone) {
+                                   $label[] = '['.$customer->phone.']';
+                               }
+
+                               $label[] = $customer->name;
+
+                               return implode(' ', $label);
                            })
                            ->different('customer_id')
                            ->hint(function (Order $order) {

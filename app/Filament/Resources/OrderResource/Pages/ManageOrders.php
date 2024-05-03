@@ -61,7 +61,14 @@ class ManageOrders extends ManageRecords
                       )
                       ->searchable(['name', 'phone'])
                       ->getOptionLabelFromRecordUsing(function (Model $customer) {
-                          return '['.$customer->phone.'] '.$customer->name;
+                          $label = [];
+                          if ($customer->phone) {
+                              $label[] = '['.$customer->phone.']';
+                          }
+
+                          $label[] = $customer->name;
+
+                          return implode(' ', $label);
                       })
                       ->preload(),
                 Select::make('reseller_id')
@@ -72,7 +79,14 @@ class ManageOrders extends ManageRecords
                       )
                       ->searchable(['name', 'phone'])
                       ->getOptionLabelFromRecordUsing(function (Model $customer) {
-                          return '['.$customer->phone.'] '.$customer->name;
+                          $label = [];
+                          if ($customer->phone) {
+                              $label[] = '['.$customer->phone.']';
+                          }
+
+                          $label[] = $customer->name;
+
+                          return implode(' ', $label);
                       })
                       ->preload()
                       ->different('customer_id'),
@@ -111,16 +125,6 @@ class ManageOrders extends ManageRecords
     public function getTabs(): array
     {
         $orders = Order::get();
-        $draft = new Draft(Order::class);
-        $pendingPayment = new PendingPayment(Order::class);
-        $partialPayment = new PartialPayment(Order::class);
-        $paid = new Paid(Order::class);
-        $processing = new Processing(Order::class);
-        $undershipment = new UnderShipment(Order::class);
-        $shipped = new Shipped(Order::class);
-        $completed = new Completed(Order::class);
-        $cancelled = new Cancelled(Order::class);
-        $refunded = new Refunded(Order::class);
 
         $states = [
             Draft::class,

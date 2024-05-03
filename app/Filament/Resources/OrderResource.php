@@ -5,15 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
-use App\States\Order\Cancelled;
-use App\States\Order\Completed;
-use App\States\Order\Paid;
-use App\States\Order\PartialPayment;
-use App\States\Order\PendingPayment;
-use App\States\Order\Processing;
-use App\States\Order\Refunded;
-use App\States\Order\Shipped;
-use App\States\Order\UnderShipment;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
@@ -91,7 +82,13 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('customer.name')
                                          ->searchable()
                                          ->description(
-                                             fn(Order $record): string => '+62 '.$record->customer->friendly_phone
+                                             function (Order $order) {
+                                                 if (! $order->customer->phone) {
+                                                     return null;
+                                                 }
+
+                                                 return '+62 '.$order->customer->friendly_phone;
+                                             }
                                          ),
                 Tables\Columns\TextColumn::make('reseller.name')
                                          ->searchable()
