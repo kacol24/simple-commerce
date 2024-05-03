@@ -111,81 +111,46 @@ class ManageOrders extends ManageRecords
     public function getTabs(): array
     {
         $orders = Order::get();
+        $draft = new Draft(Order::class);
+        $pendingPayment = new PendingPayment(Order::class);
+        $partialPayment = new PartialPayment(Order::class);
+        $paid = new Paid(Order::class);
+        $processing = new Processing(Order::class);
+        $undershipment = new UnderShipment(Order::class);
+        $shipped = new Shipped(Order::class);
+        $completed = new Completed(Order::class);
+        $cancelled = new Cancelled(Order::class);
+        $refunded = new Refunded(Order::class);
 
-        return [
-            null                 => Tab::make('All')
-                                       ->badge($orders->count())
-                                       ->badgeColor('gray'),
-            (new Draft(Order::class))
-                ->friendlyName() => Tab::make()
-                                       ->query(
-                                           fn($query) => $query->whereState('status', Draft::class)
-                                       )
-                                       ->badge($orders->where('status', Draft::class)->count())
-                                       ->badgeColor('gray'),
-            (new PendingPayment(Order::class))
-                ->friendlyName() => Tab::make()
-                                       ->query(
-                                           fn($query) => $query->whereState('status', PendingPayment::class)
-                                       )
-                                       ->badge($orders->where('status', PendingPayment::class)->count())
-                                       ->badgeColor('warning'),
-            (new PartialPayment(Order::class))
-                ->friendlyName() => Tab::make()
-                                       ->query(
-                                           fn($query) => $query->whereState('status', PartialPayment::class)
-                                       )
-                                       ->badge($orders->where('status', PartialPayment::class)->count())
-                                       ->badgeColor('warning'),
-            (new Paid(Order::class))
-                ->friendlyName() => Tab::make()
-                                       ->query(
-                                           fn($query) => $query->whereState('status', Paid::class)
-                                       )
-                                       ->badge($orders->where('status', Paid::class)->count())
-                                       ->badgeColor('info'),
-            (new Processing(Order::class))
-                ->friendlyName() => Tab::make()
-                                       ->query(
-                                           fn($query) => $query->whereState('status', Processing::class)
-                                       )
-                                       ->badge($orders->where('status', Processing::class)->count())
-                                       ->badgeColor('primary'),
-            (new UnderShipment(Order::class))
-                ->friendlyName() => Tab::make()
-                                       ->query(
-                                           fn($query) => $query->whereState('status', UnderShipment::class)
-                                       )
-                                       ->badge($orders->where('status', UnderShipment::class)->count())
-                                       ->badgeColor('primary'),
-            (new Shipped(Order::class))
-                ->friendlyName() => Tab::make()
-                                       ->query(
-                                           fn($query) => $query->whereState('status', Shipped::class)
-                                       )
-                                       ->badge($orders->where('status', Shipped::class)->count())
-                                       ->badgeColor('primary'),
-            (new Completed(Order::class))
-                ->friendlyName() => Tab::make()
-                                       ->query(
-                                           fn($query) => $query->whereState('status', Completed::class)
-                                       )
-                                       ->badge($orders->where('status', Completed::class)->count())
-                                       ->badgeColor('success'),
-            (new Cancelled(Order::class))
-                ->friendlyName() => Tab::make()
-                                       ->query(
-                                           fn($query) => $query->whereState('status', Cancelled::class)
-                                       )
-                                       ->badge($orders->where('status', Cancelled::class)->count())
-                                       ->badgeColor('danger'),
-            (new Refunded(Order::class))
-                ->friendlyName() => Tab::make()
-                                       ->query(
-                                           fn($query) => $query->whereState('status', Refunded::class)
-                                       )
-                                       ->badge($orders->where('status', Refunded::class)->count())
-                                       ->badgeColor('danger'),
+        $states = [
+            Draft::class,
+            PendingPayment::class,
+            PartialPayment::class,
+            Paid::class,
+            Processing::class,
+            UnderShipment::class,
+            Shipped::class,
+            Completed::class,
+            Cancelled::class,
+            Refunded::class,
         ];
+
+        $tabs = [
+            null => Tab::make('All')
+                       ->badge($orders->count())
+                       ->badgeColor('gray'),
+        ];
+
+        foreach ($states as $state) {
+            $instance = new $state(Order::class);
+            $tabs[$instance->friendlyName()] = Tab::make()
+                                  ->query(
+                                      fn($query) => $query->whereState('status', $state)
+                                  )
+                                  ->badge($orders->where('status', $state)->count())
+                                  ->badgeColor($instance->color());
+        }
+
+        return $tabs;
     }
 }

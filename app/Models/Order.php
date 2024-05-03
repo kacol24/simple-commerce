@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Amountables\Discount;
 use App\Models\Amountables\Fee;
 use App\Models\Amountables\Payment;
+use App\Models\Concerns\LogsActivity;
 use App\States\OrderState;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,6 +16,7 @@ class Order extends Model
 {
     use HasStates;
     use SoftDeletes;
+    use LogsActivity;
 
     protected $fillable = [
         'channel_id',

@@ -10,6 +10,7 @@
         "icetalker/filament-table-repeater": "^1.2",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
+        "spatie/laravel-activitylog": "^4.8",
         "spatie/laravel-model-states": "^2.7"
     },
     "require-dev": {

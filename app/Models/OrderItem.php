@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderItem extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'order_id',
         'purchasable_type',

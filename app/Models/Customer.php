@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasWhatsapp;
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 
 class Customer extends Model
 {
     use HasWhatsapp;
+    use LogsActivity;
     use SoftDeletes;
 
     protected $fillable = [

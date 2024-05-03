@@ -6,6 +6,7 @@ use App\Filament\Resources\OrderResource;
 use App\Models\Order;
 use App\States\Order\Cancelled;
 use App\States\Order\Completed;
+use App\States\Order\Draft;
 use App\States\Order\Refunded;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Actions\Action;
@@ -31,17 +32,13 @@ class EditOrder extends EditRecord
 {
     protected static string $resource = OrderResource::class;
 
-    protected function getFormActions(): array
-    {
-        return [];
-    }
-
     protected function getHeaderActions(): array
     {
         return [
-            $this->getSaveFormAction(),
-            $this->getCancelFormAction(),
-            DeleteAction::make(),
+            DeleteAction::make()
+                        ->visible(function (Model $order) {
+                            return in_array($order->status, [Draft::class]);
+                        }),
         ];
     }
 
@@ -71,14 +68,6 @@ class EditOrder extends EditRecord
                                 ->schema(static::getOrderSummarySection())
                                 ->columns([
                                     '2xl' => 2,
-                                ])
-                                ->headerActions([
-                                    Action::make('Activity Log')
-                                          ->link()
-                                          ->icon('heroicon-s-queue-list')
-                                          ->modalContent(view('order.timeline'))
-                                          ->modalSubmitAction(false)
-                                          ->modalCancelAction(false),
                                 ]),
                      ])
                      ->columnSpan(['lg' => 1]),
@@ -217,10 +206,43 @@ class EditOrder extends EditRecord
                                    (string) $livewire->getRecord()->status,
                                    [Completed::class, Cancelled::class, Refunded::class]
                                );
+                           })
+                           ->hintAction(function () {
+                               return Action::make('Status Log')
+                                            ->link()
+                                            ->icon('heroicon-c-queue-list')
+                                            ->modalContent(function (Model $order) {
+                                                $activityLog = $order->activities()
+                                                                     ->orderBy('created_at', 'desc')
+                                                                     ->where('event', 'status-update')
+                                                                     ->get()
+                                                                     ->groupBy(
+                                                                         function ($log) {
+                                                                             return $log->created_at->format('Y-m-d');
+                                                                         }
+                                                                     )
+                                                                     ->map(
+                                                                         function ($logs) {
+                                                                             return [
+                                                                                 'date'  => $logs->first()->created_at->startOfDay(),
+                                                                                 'items' => $logs->map(function ($log) {
+                                                                                     return [
+                                                                                         'log' => $log,
+                                                                                     ];
+                                                                                 }),
+                                                                             ];
+                                                                         }
+                                                                     );
+
+                                                return view('order.timeline', compact('activityLog'));
+                                            })
+                                            ->modalSubmitAction(false)
+                                            ->modalCancelAction(false);
                            }),
                      Select::make('channel_id')
                            ->required()
-                           ->relationship('channel', 'name'),
+                           ->relationship('channel', 'name')
+                           ->selectablePlaceholder(false),
                      Placeholder::make('created_at')
                                 ->hint(function ($record) {
                                     return $record->created_at->diffForHumans();

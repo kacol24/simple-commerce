@@ -2,7 +2,6 @@
 
 namespace App\States;
 
-use App\Models\Order;
 use App\States\Order\Cancelled;
 use App\States\Order\Completed;
 use App\States\Order\Draft;
@@ -23,6 +22,8 @@ abstract class OrderState extends State
     {
         return Str::headline(class_basename($this));
     }
+
+    abstract public function color();
 
     /**
      * @throws \Spatie\ModelStates\Exceptions\InvalidConfig

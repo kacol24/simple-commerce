@@ -83,14 +83,7 @@ class OrderResource extends Resource
                                              return $state->friendlyName();
                                          })
                                          ->badge()
-                                         ->color(fn(string $state): string => match ($state) {
-                                             PendingPayment::class, PartialPayment::class => 'warning',
-                                             Paid::class => 'info',
-                                             Processing::class, UnderShipment::class, Shipped::class => 'primary',
-                                             Completed::class => 'success',
-                                             Cancelled::class, Refunded::class => 'danger',
-                                             default => 'gray'
-                                         }),
+                                         ->color(fn(Model $order, string $state): string => $order->status->color()),
                 Tables\Columns\TextColumn::make('order_no')
                                          ->label('Order No')
                                          ->sortable()
