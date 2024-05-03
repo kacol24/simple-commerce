@@ -44,4 +44,43 @@ class OrderItem extends Model
     {
         return $this->price - $this->discount_total;
     }
+
+    public function getFormattedPriceAttribute()
+    {
+        return $this->formatMoney($this->price);
+    }
+
+    public function getFormattedSubTotalAttribute()
+    {
+        return $this->formatMoney($this->sub_total);
+    }
+
+    public function getFormattedDiscountTotalAttribute()
+    {
+        return $this->formatMoney($this->discount_total);
+    }
+
+    public function getFormattedTotalAttribute()
+    {
+        return $this->formatMoney($this->total);
+    }
+
+    public function getOptionStringAttribute()
+    {
+        $mapped = array_map(function ($value) {
+            return implode(': ', $value);
+        }, $this->option);
+
+        return implode(', ', $mapped);
+    }
+
+    private function formatMoney($value)
+    {
+        return 'Rp'.$this->numberFormat($value);
+    }
+
+    private function numberFormat($value)
+    {
+        return number_format($value, 0, ',', '.');
+    }
 }

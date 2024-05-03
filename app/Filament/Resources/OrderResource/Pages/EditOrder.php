@@ -13,9 +13,9 @@ use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\View;
 use Filament\Forms\Form;
@@ -35,6 +35,18 @@ class EditOrder extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            \Filament\Actions\Action::make('confirmation')
+                                    ->label('Order Confirmation')
+                                    ->url(fn(Order $record): string => $record->confirmation_link)
+                                    ->icon('heroicon-s-check-circle')
+                                    ->openUrlInNewTab()
+                                    ->color('gray'),
+            \Filament\Actions\Action::make('invoice')
+                                    ->label('Send Invoice')
+                                    ->url(fn(Order $record): string => $record->invoice_link)
+                                    ->icon('heroicon-s-banknotes')
+                                    ->openUrlInNewTab()
+                                    ->color('gray'),
             DeleteAction::make()
                         ->visible(function (Model $order) {
                             return in_array($order->status, [Draft::class]);
@@ -180,7 +192,7 @@ class EditOrder extends EditRecord
                            ->columnSpan(1),
                  ])
                  ->columns(2),
-            RichEditor::make('notes'),
+            Textarea::make('notes'),
         ];
     }
 

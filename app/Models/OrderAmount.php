@@ -21,4 +21,19 @@ class OrderAmount extends Model
     protected $casts = [
         'meta' => 'json',
     ];
+
+    public function getFormattedAmountAttribute()
+    {
+        return $this->formatMoney($this->amount);
+    }
+
+    private function formatMoney($value)
+    {
+        return 'Rp'.$this->numberFormat($value);
+    }
+
+    private function numberFormat($value)
+    {
+        return number_format($value, 0, ',', '.');
+    }
 }

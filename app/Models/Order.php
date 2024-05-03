@@ -18,6 +18,11 @@ class Order extends Model
     use SoftDeletes;
     use LogsActivity;
 
+    const SHIPPING_BREAKDOWN_MAP = [
+        'shipping_method' => 'Kurir',
+        'shipping_date'   => 'Tgl',
+    ];
+
     protected $fillable = [
         'channel_id',
         'customer_id',
@@ -121,6 +126,32 @@ class Order extends Model
     public function getFormattedAmountDueAttribute()
     {
         return $this->formatMoney($this->amount_due);
+    }
+
+    public function getInvoiceLinkAttribute()
+    {
+        config()->set('livewire.inject_morph_markers', false);
+
+        $append = view('whatstapp.invoice', [
+            'customer'   => $this->customer,
+            'order'      => $this,
+            'orderItems' => $this->items,
+        ])->render();
+
+        return "https://wa.me/{$this->customer->whatsapp_phone}?lang=en&text=".urlencode($append);
+    }
+
+    public function getConfirmationLinkAttribute()
+    {
+        config()->set('livewire.inject_morph_markers', false);
+
+        $append = view('whatstapp.order_confirmation', [
+            'customer'   => $this->customer,
+            'order'      => $this,
+            'orderItems' => $this->items,
+        ])->render();
+
+        return "https://wa.me/{$this->customer->whatsapp_phone}?lang=en&text=".urlencode($append);
     }
 
     private function formatMoney($value)
