@@ -36,6 +36,7 @@ class AddOrUpdateOrderItem extends AbstractAction
             'short_description' => $payload->product->short_description,
             'sku'               => $payload->product->default_sku,
             'price'             => $payload->product->default_price,
+            'cost_price'        => $payload->product->default_cost_price,
             'quantity'          => $payload->quantity,
             'sub_total'         => $subtotal,
             'discount_total'    => $discountTotal,

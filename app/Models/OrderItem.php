@@ -18,6 +18,7 @@ class OrderItem extends Model
         'option',
         'sku',
         'price',
+        'cost_price',
         'quantity',
         'sub_total',
         'discount_total',
