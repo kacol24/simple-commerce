@@ -21,7 +21,7 @@
         }
     </style>
 </head>
-<body style="width: 48mm; margin: auto; padding-top: 5mm;">
+<body style="width: 48mm; margin: auto; padding-top: 5mm;padding-bottom: 5mm;">
 <table style="width: 100%;">
     <tr>
         <th>Penerima</th>
