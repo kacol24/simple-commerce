@@ -8,7 +8,9 @@ use App\Models\Order;
 use App\States\Order\Cancelled;
 use App\States\Order\Completed;
 use App\States\Order\Draft;
+use App\States\Order\Processing;
 use App\States\Order\Refunded;
+use App\States\Order\UnderShipment;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
@@ -41,13 +43,45 @@ class EditOrder extends EditRecord
                                     ->url(fn(Order $record): string => $record->confirmation_link)
                                     ->icon('heroicon-s-check-circle')
                                     ->openUrlInNewTab()
-                                    ->color('gray'),
+                                    ->color('gray')
+                                    ->hidden(function (Model $order) {
+                                        return in_array($order->status, [
+                                            Draft::class,
+                                            Completed::class,
+                                            Cancelled::class,
+                                            Refunded::class,
+                                        ]);
+                                    }),
+            \Filament\Actions\Action::make('packing_slip')
+                                    ->label('Packing Slip')
+                                    ->url(function (Model $order) {
+                                        return route('orders.packing_slip', $order);
+                                    })
+                                    ->icon('heroicon-s-archive-box')
+                                    ->openUrlInNewTab()
+                                    ->color('gray')
+                                    ->visible(function (Model $order) {
+                                        return true;
+
+                                        return in_array($order->status, [
+                                            Processing::class,
+                                            UnderShipment::class,
+                                        ]);
+                                    }),
             \Filament\Actions\Action::make('invoice')
                                     ->label('Send Invoice')
                                     ->url(fn(Order $record): string => $record->invoice_link)
-                                    ->icon('heroicon-s-banknotes')
+                                    ->icon('heroicon-s-currency-dollar')
                                     ->openUrlInNewTab()
-                                    ->color('gray'),
+                                    ->color('gray')
+                                    ->hidden(function (Model $order) {
+                                        return in_array($order->status, [
+                                            Draft::class,
+                                            Completed::class,
+                                            Cancelled::class,
+                                            Refunded::class,
+                                        ]);
+                                    }),
             DeleteAction::make()
                         ->visible(function (Model $order) {
                             return in_array($order->status, [Draft::class]);

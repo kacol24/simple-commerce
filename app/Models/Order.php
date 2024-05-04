@@ -154,6 +154,11 @@ class Order extends Model
         return "https://wa.me/{$this->customer->whatsapp_phone}?lang=en&text=".urlencode($append);
     }
 
+    public function getPackingLinkAttribute()
+    {
+        return view('order.packing_slip');
+    }
+
     private function formatMoney($value)
     {
         return 'Rp'.$this->numberFormat($value);
