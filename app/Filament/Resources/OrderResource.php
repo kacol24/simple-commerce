@@ -48,7 +48,8 @@ class OrderResource extends Resource
                                        ->getOptionLabelFromRecordUsing(function (Model $customer) {
                                            return '['.$customer->friendly_phone.'] '.$customer->name;
                                        })
-                                       ->preload(),
+                                       ->preload()
+                                       ->createOptionForm(CustomerResource::getFormSchema()),
                 Forms\Components\Select::make('reseller_id')
                                        ->label('Reseller')
                                        ->relationship(
@@ -59,6 +60,7 @@ class OrderResource extends Resource
                                        ->getOptionLabelFromRecordUsing(function (Model $customer) {
                                            return '['.$customer->friendly_phone.'] '.$customer->name;
                                        })
+                                       ->createOptionForm(CustomerResource::getFormSchema())
                                        ->preload(),
                 Forms\Components\Textarea::make('notes')
                                          ->columnSpanFull(),

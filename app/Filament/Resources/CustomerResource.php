@@ -29,23 +29,29 @@ class CustomerResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\Toggle::make('is_active')
-                                       ->required()
-                                       ->label('Active?')
-                                       ->default(true),
-                Group::make()
-                     ->schema([
-                         Forms\Components\TextInput::make('name')
-                                                   ->required()
-                                                   ->maxLength(255),
-                         Forms\Components\TextInput::make('phone')
-                                                   ->tel()
-                                                   ->maxLength(20)
-                                                   ->prefix('+62'),
-                     ])
-                     ->columns(2),
-            ])->columns(1);
+            ->schema(self::getFormSchema())
+            ->columns(1);
+    }
+
+    public static function getFormSchema()
+    {
+        return [
+            Forms\Components\Toggle::make('is_active')
+                                   ->required()
+                                   ->label('Active?')
+                                   ->default(true),
+            Group::make()
+                 ->schema([
+                     Forms\Components\TextInput::make('name')
+                                               ->required()
+                                               ->maxLength(255),
+                     Forms\Components\TextInput::make('phone')
+                                               ->tel()
+                                               ->maxLength(20)
+                                               ->prefix('+62'),
+                 ])
+                 ->columns(2),
+        ];
     }
 
     public static function table(Table $table): Table

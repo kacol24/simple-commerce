@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use App\Filament\Resources\CustomerResource;
 use App\Filament\Resources\OrderResource;
 use App\Models\Order;
 use App\States\Order\Cancelled;
@@ -142,6 +143,7 @@ class EditOrder extends EditRecord
                            )
                            ->searchable(['name', 'phone'])
                            ->preload()
+                           ->createOptionForm(CustomerResource::getFormSchema())
                            ->getOptionLabelFromRecordUsing(function (Model $customer) {
                                $label = [];
                                if ($customer->phone) {
@@ -169,6 +171,7 @@ class EditOrder extends EditRecord
                            )
                            ->searchable(['name', 'phone'])
                            ->preload()
+                           ->createOptionForm(CustomerResource::getFormSchema())
                            ->getOptionLabelFromRecordUsing(function (Model $customer) {
                                $label = [];
                                if ($customer->phone) {
