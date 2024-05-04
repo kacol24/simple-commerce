@@ -17,7 +17,7 @@
 
         * {
             font-family: monospace;
-            font-size: 6pt;
+            /*font-size: 6pt;*/
         }
     </style>
 </head>
