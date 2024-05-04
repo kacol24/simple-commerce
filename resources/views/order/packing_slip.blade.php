@@ -48,17 +48,32 @@
     <tr>
         <th>Pengirim</th>
     </tr>
-    <tr>
-        <td>
-            {{ $channel->name }}
-        </td>
-    </tr>
-    @if($channel->url)
+    @if($reseller)
         <tr>
             <td>
-                {{ $channel->url }}
+                {{ $reseller->name }}
             </td>
         </tr>
+        @if($reseller->phone)
+            <tr>
+                <td>
+                    {{ '0' . $reseller->friendly_phone }}
+                </td>
+            </tr>
+        @endif
+    @else
+        <tr>
+            <td>
+                {{ $channel->name }}
+            </td>
+        </tr>
+        @if($channel->url)
+            <tr>
+                <td>
+                    {{ $channel->url }}
+                </td>
+            </tr>
+        @endif
     @endif
 </table>
 <hr style="margin-top: 5mm;border-style: dashed;">
@@ -78,7 +93,9 @@
                 {{ $loop->iteration }}
             </td>
             <td class="align-top">
-                {{ $item->title }}@if($item->option)<em class="d-block">({{ $item->option_string }})</em>@endif
+                {{ $item->title }}@if($item->option)
+                    <em class="d-block">({{ $item->option_string }})</em>
+                @endif
             </td>
             <td class="align-top text-center">
                 {{ $item->quantity }}
