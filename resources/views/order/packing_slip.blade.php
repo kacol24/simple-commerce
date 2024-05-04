@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" style="width: 48mm;margin:auto;">
+<html lang="en" style="margin:auto;">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,9 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
-        @page {
-            size: 58mm 200mm;
-        }
+        /*@page {*/
+        /*    size: 58mm 200mm;*/
+        /*}*/
 
         table, figure {
             page-break-inside: avoid; /* Prevent the table from breaking across pages */
@@ -21,7 +21,7 @@
         }
     </style>
 </head>
-<body style="width: 48mm; margin: auto; padding-top: 10mm;">
+<body style="margin: auto; padding-top: 10mm;">
 <table style="width: 100%;">
     <tr>
         <th>Penerima</th>
