@@ -61,8 +61,6 @@ class EditOrder extends EditRecord
                                     ->openUrlInNewTab()
                                     ->color('gray')
                                     ->visible(function (Model $order) {
-                                        return true;
-
                                         return in_array($order->status, [
                                             Processing::class,
                                             UnderShipment::class,
