@@ -28,6 +28,10 @@ class ProductOptionResource extends Resource
                 Forms\Components\TextInput::make('name')
                                           ->required()
                                           ->maxLength(255),
+                Forms\Components\TextInput::make('display_name')
+                                          ->hint('If not provided, name will be used.')
+                                          ->helperText('Used for display to customer.')
+                                          ->maxLength(255),
             ]);
     }
 
@@ -36,6 +40,8 @@ class ProductOptionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                                         ->searchable(),
+                Tables\Columns\TextColumn::make('display_name')
                                          ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                                          ->dateTime()
@@ -66,8 +72,8 @@ class ProductOptionResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
-            ->modifyQueryUsing(function ($query){
-                return $query->where('is_shared', true);
+            ->modifyQueryUsing(function ($query) {
+                return $query->shared();
             });
     }
 

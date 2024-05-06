@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 class OrderItem extends Model
 {
@@ -69,7 +70,7 @@ class OrderItem extends Model
     public function getOptionStringAttribute()
     {
         $mapped = array_map(function ($value) {
-            return implode(': ', $value);
+            return implode(': ', Arr::only($value, ['key', 'value']));
         }, $this->option);
 
         return implode(', ', $mapped);

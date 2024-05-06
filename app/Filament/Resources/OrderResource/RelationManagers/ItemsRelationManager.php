@@ -88,6 +88,29 @@ class ItemsRelationManager extends RelationManager
                       ->hidden(),
                 Grid::make()
                     ->schema([
+                        TableRepeater::make('option')
+                                     ->label('Options')
+                                     ->schema([
+                                         Select::make('key')
+                                               ->label('Option')
+                                               ->options($productOptions->pluck('name', 'id'))
+                                               ->native(false)
+                                               ->preload()
+                                               ->required()
+                                               ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                               ->selectablePlaceholder(false)
+                                               ->searchable(),
+                                         TextInput::make('value')
+                                                  ->label('Value')
+                                                  ->debounce()
+                                                  ->required(),
+                                     ])
+                                     ->colStyles(['key' => 'padding-bottom: 16px'])
+                                     ->defaultItems(0)
+                                     ->reorderable(false)
+                                     ->reorderableWithDragAndDrop(false)
+                                     ->collapsible()
+                                     ->columnSpan(6),
                         Group::make()
                              ->schema([
                                  Placeholder::make('display_price')
@@ -142,41 +165,6 @@ class ItemsRelationManager extends RelationManager
                                  'default' => 2,
                              ])
                              ->columnSpan(4),
-                        TableRepeater::make('option')
-                                     ->label('Options')
-                                     ->schema([
-                                         Select::make('key')
-                                               ->label('Option')
-                                               ->options($productOptions->pluck('name', 'name'))
-                                               ->native(false)
-                                               ->preload()
-                                               ->required()
-                                               ->live(onBlur: true)
-                                               ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                               ->selectablePlaceholder(false)
-                                               ->searchable(),
-                                         TextInput::make('value')
-                                                  ->label('Value')
-                                                  ->debounce()
-                                                  ->required(),
-                                     ])
-                                     ->colStyles(['key' => 'padding-bottom: 16px'])
-                                     ->defaultItems(0)
-                                     ->reorderable(false)
-                                     ->reorderableWithDragAndDrop(false)
-                                     ->collapsible()
-                                     //->columns(2)
-                                     //->grid(2)
-                                     //->itemLabel(
-                                     //    function ($state) {
-                                     //        if (! $state['key']) {
-                                     //            return null;
-                                     //        }
-                                     //
-                                     //        return $state['key'].': '.$state['value'];
-                                     //    }
-                                     //)
-                                     ->columnSpan(6),
                     ])
                     ->columnSpanFull()
                     ->columns(10),
@@ -205,11 +193,7 @@ class ItemsRelationManager extends RelationManager
                                       return null;
                                   }
 
-                                  $mapped = array_map(function ($value) {
-                                      return implode(': ', $value);
-                                  }, $record->option);
-
-                                  return implode(', ', $mapped);
+                                  return $record->option_string;
                               }
                           )
                           ->searchable(['title', 'sku']),

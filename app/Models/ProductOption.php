@@ -12,16 +12,18 @@ class ProductOption extends Model
     use LogsActivity;
 
     protected $fillable = [
+        'product_id',
         'name',
-        'is_shared',
-    ];
-
-    protected $casts = [
-        'is_shared' => 'boolean',
+        'display_name',
     ];
 
     public function scopeShared($query)
     {
-        return $query->where('is_shared', true);
+        return $query->whereNull('product_id');
+    }
+
+    public function getDisplayNameAttribute()
+    {
+        return $this->display_name ?? $this->name;
     }
 }
