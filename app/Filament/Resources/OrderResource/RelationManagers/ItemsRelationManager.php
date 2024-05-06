@@ -6,6 +6,7 @@ use App\Actions\AddOrUpdateOrderItem;
 use App\Actions\UpdateOrderItem;
 use App\DataObjects\AddOrUpdateOrderItemPayload;
 use App\Filament\Resources\ProductOptionResource;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductOption;
 use Filament\Forms\Components\Grid;
@@ -27,6 +28,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 
@@ -96,8 +98,17 @@ class ItemsRelationManager extends RelationManager
                                                }),
                                          TextInput::make('value')
                                                   ->label('Value')
-                                                  ->debounce()
-                                                  ->required(),
+                                                  ->requiredWith('key')
+                                                  ->datalist(function () {
+                                                      $orderItems = OrderItem::get();
+
+                                                      $suggestions = [];
+                                                      foreach ($orderItems as $item) {
+                                                          $suggestions[] = Arr::pluck($item->option, 'value');
+                                                      }
+
+                                                      return array_unique(Arr::collapse($suggestions));
+                                                  }),
                                      ])
                                      ->colStyles([
                                          'key'   => 'padding-bottom: 16px; width: 50%',
