@@ -105,7 +105,10 @@ class ItemsRelationManager extends RelationManager
                                                   ->debounce()
                                                   ->required(),
                                      ])
-                                     ->colStyles(['key' => 'padding-bottom: 16px'])
+                                     ->colStyles([
+                                         'key'   => 'padding-bottom: 16px; width: 50%',
+                                         'value' => 'padding-bottom: 16px; width: 50%',
+                                     ])
                                      ->defaultItems(0)
                                      ->reorderable(false)
                                      ->reorderableWithDragAndDrop(false)
@@ -243,7 +246,8 @@ class ItemsRelationManager extends RelationManager
                                 $livewire->dispatch('refreshOrders', fields: [
                                     'sub_total', 'grand_total',
                                 ]);
-                            }),
+                            })
+                            ->createAnother(false),
             ])
             ->actions([
                 ActionGroup::make([
@@ -251,6 +255,17 @@ class ItemsRelationManager extends RelationManager
                               ->mutateRecordDataUsing(function ($data) {
                                   $productVariant = $data['purchasable_type']::find($data['purchasable_id']);
                                   $data['product_id'] = $productVariant->product_id;
+
+                                  if (! is_null($data['option']) && count($data['option'])) {
+                                      $mapped = [];
+                                      foreach ($data['option'] as $option) {
+                                          $mapped[] = [
+                                              'key'   => $option['id'],
+                                              'value' => $option['value'],
+                                          ];
+                                      }
+                                      $data['option'] = $mapped;
+                                  }
 
                                   return $data;
                               })
