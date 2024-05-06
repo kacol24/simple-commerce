@@ -45,7 +45,7 @@ class ItemsRelationManager extends RelationManager
             ->schema([
                 Select::make('product_id')
                       ->label('Product')
-                      ->options(Product::query()->pluck('title', 'id'))
+                      ->options(Product::query()->active()->pluck('title', 'id'))
                       ->native(false)
                       ->preload()
                       ->required()
