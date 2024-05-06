@@ -5,6 +5,7 @@ namespace App\Filament\Resources\OrderResource\RelationManagers;
 use App\Actions\AddOrUpdateOrderItem;
 use App\Actions\UpdateOrderItem;
 use App\DataObjects\AddOrUpdateOrderItemPayload;
+use App\Filament\Resources\ProductOptionResource;
 use App\Models\Product;
 use App\Models\ProductOption;
 use Filament\Forms\Components\Grid;
@@ -99,7 +100,13 @@ class ItemsRelationManager extends RelationManager
                                                ->required()
                                                ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                                                ->selectablePlaceholder(false)
-                                               ->searchable(),
+                                               ->searchable()
+                                               ->createOptionForm(ProductOptionResource::getForm())
+                                               ->createOptionUsing(function (array $data) {
+                                                   $create = ProductOption::create($data);
+
+                                                   return $create->getKey();
+                                               }),
                                          TextInput::make('value')
                                                   ->label('Value')
                                                   ->debounce()

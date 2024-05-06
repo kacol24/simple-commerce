@@ -24,15 +24,20 @@ class ProductOptionResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                                          ->required()
-                                          ->maxLength(255),
-                Forms\Components\TextInput::make('display_name')
-                                          ->hint('If not provided, name will be used.')
-                                          ->helperText('Used for display to customer.')
-                                          ->maxLength(255),
-            ]);
+            ->schema(self::getForm());
+    }
+
+    public static function getForm()
+    {
+        return [
+            Forms\Components\TextInput::make('name')
+                                      ->required()
+                                      ->maxLength(255),
+            Forms\Components\TextInput::make('display_name')
+                                      ->hint('If not provided, name will be used.')
+                                      ->helperText('Used for display to customer.')
+                                      ->maxLength(255),
+        ];
     }
 
     public static function table(Table $table): Table
