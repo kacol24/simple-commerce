@@ -46,7 +46,6 @@ class EditOrder extends EditRecord
                                     ->color('gray')
                                     ->hidden(function (Model $order) {
                                         return in_array($order->status, [
-                                            Draft::class,
                                             Completed::class,
                                             Cancelled::class,
                                             Refunded::class,
