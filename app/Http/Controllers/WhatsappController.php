@@ -11,4 +11,9 @@ class WhatsappController extends Controller
     {
         return redirect()->to($order->invoice_link);
     }
+
+    public function confirmation(Order $order)
+    {
+        return redirect()->to($order->confirmation_link);
+    }
 }

@@ -13,7 +13,7 @@ _{!! nl2br($order->notes) !!}_
 @foreach($order->items as $item)
 {{ $item->quantity }} x {{ $item->title }}
 @if($item->option)
-> {{ $item->option_string }}
+    _{{ $item->option_string }}_
 @endif
 @if($item->notes)
     _notes: {{ $item->notes }}_

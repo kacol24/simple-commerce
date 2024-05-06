@@ -40,7 +40,7 @@ class EditOrder extends EditRecord
         return [
             \Filament\Actions\Action::make('confirmation')
                                     ->label('Order Confirmation')
-                                    ->url(fn(Order $record): string => $record->confirmation_link)
+                                    ->url(fn(Order $record): string => route('wa.orders.confirmation', $record))
                                     ->icon('heroicon-s-check-circle')
                                     ->openUrlInNewTab()
                                     ->color('gray')
