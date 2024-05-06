@@ -68,7 +68,7 @@ class EditOrder extends EditRecord
                                     }),
             \Filament\Actions\Action::make('invoice')
                                     ->label('Send Invoice')
-                                    ->url(fn(Order $record): string => $record->invoice_link)
+                                    ->url(fn(Order $record): string => route('wa.orders.invoice', $record))
                                     ->icon('heroicon-s-currency-dollar')
                                     ->openUrlInNewTab()
                                     ->color('gray')

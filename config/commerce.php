@@ -16,4 +16,6 @@ return [
             CalculatePayment::class,
         ],
     ],
+
+    'show_currency' => false,
 ];

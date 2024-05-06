@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FormatsMoney;
 use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -9,6 +10,7 @@ use Illuminate\Support\Arr;
 class OrderItem extends Model
 {
     use LogsActivity;
+    use FormatsMoney;
 
     protected $fillable = [
         'order_id',
@@ -76,13 +78,8 @@ class OrderItem extends Model
         return implode(', ', $mapped);
     }
 
-    private function formatMoney($value)
+    public function hasDiscount()
     {
-        return 'Rp'.$this->numberFormat($value);
-    }
-
-    private function numberFormat($value)
-    {
-        return number_format($value, 0, ',', '.');
+        return $this->discount_total > 0;
     }
 }

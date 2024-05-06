@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FormatsMoney;
 use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderAmount extends Model
 {
     use LogsActivity;
+    use FormatsMoney;
 
     protected $fillable = [
         'order_id',
@@ -25,15 +27,5 @@ class OrderAmount extends Model
     public function getFormattedAmountAttribute()
     {
         return $this->formatMoney($this->amount);
-    }
-
-    private function formatMoney($value)
-    {
-        return 'Rp'.$this->numberFormat($value);
-    }
-
-    private function numberFormat($value)
-    {
-        return number_format($value, 0, ',', '.');
     }
 }

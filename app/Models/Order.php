@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Amountables\Discount;
 use App\Models\Amountables\Fee;
 use App\Models\Amountables\Payment;
+use App\Models\Concerns\FormatsMoney;
 use App\Models\Concerns\LogsActivity;
 use App\States\OrderState;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ class Order extends Model
     use HasStates;
     use SoftDeletes;
     use LogsActivity;
+    use FormatsMoney;
 
     const SHIPPING_BREAKDOWN_MAP = [
         'shipping_method' => 'Kurir',
@@ -159,14 +161,9 @@ class Order extends Model
         return view('order.packing_slip');
     }
 
-    private function formatMoney($value)
+    public function hasShipping()
     {
-        return 'Rp'.$this->numberFormat($value);
-    }
-
-    private function numberFormat($value)
-    {
-        return number_format($value, 0, ',', '.');
+        return $this->shipping_total > 0;
     }
 
     public static function generateOrderNo(): string
