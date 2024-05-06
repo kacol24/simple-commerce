@@ -26,7 +26,6 @@ use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
@@ -61,22 +60,10 @@ class ItemsRelationManager extends RelationManager
                       ->getSearchResultsUsing(
                           function ($search) {
                               return Product::query()
-                                            ->where(function (Builder $builder) use ($search) {
-                                                $searchString = "%$search%";
-                                                $builder->where('title', 'like', $searchString)
-                                                        ->orWhereHas(
-                                                            'variants',
-                                                            function ($query) use ($searchString) {
-                                                                return $query->where('sku', 'like', $searchString);
-                                                            }
-                                                        );
-                                            })
+                                            ->where('title', 'like', '%'.$search.'%')
                                             ->active()
                                             ->limit(50)
-                                            ->get()
-                                            ->mapWithKeys(function (Product $product) {
-                                                return [$product->id => $product->title];
-                                            })
+                                            ->pluck('title', 'id')
                                             ->toArray();
                           }
                       )
