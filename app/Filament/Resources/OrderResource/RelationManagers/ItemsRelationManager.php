@@ -29,7 +29,6 @@ use Filament\Tables\Table;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Support\HtmlString;
 use Livewire\Component;
 
 class ItemsRelationManager extends RelationManager
@@ -188,13 +187,6 @@ class ItemsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('title')
                           ->label('Product')
-                          ->formatStateUsing(
-                              function ($record) {
-                                  return new HtmlString(
-                                      '<small class="text-gray-400">['.$record->sku.']</small><br>'.$record->title
-                                  );
-                              }
-                          )
                           ->description(
                               function ($record) {
                                   if (! $record->option) {
@@ -205,7 +197,10 @@ class ItemsRelationManager extends RelationManager
                               }
                           )
                           ->searchable(['title', 'sku']),
-                TextColumn::make('notes'),
+                TextColumn::make('sku')
+                          ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('notes')
+                          ->toggleable(),
                 TextColumn::make('price')
                           ->prefix('Rp')
                           ->numeric(thousandsSeparator: '.'),
