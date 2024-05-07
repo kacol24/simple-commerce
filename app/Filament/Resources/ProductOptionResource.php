@@ -27,6 +27,11 @@ class ProductOptionResource extends Resource
             ->schema(self::getForm());
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        return 'Soon';
+    }
+
     public static function getForm()
     {
         return [
