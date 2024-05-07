@@ -30,6 +30,7 @@ class ProductResource extends Resource
             ->schema([
                 Forms\Components\Toggle::make('is_active')
                                        ->label('Active?')
+                                       ->default(true)
                                        ->required()
                                        ->columnSpanFull(),
                 Forms\Components\TextInput::make('title')
@@ -82,7 +83,7 @@ class ProductResource extends Resource
                                          ->searchable()
                                          ->sortable()
                                          ->description(function ($record) {
-                                             return '['. $record->default_sku .']';
+                                             return '['.$record->default_sku.']';
                                          }),
                 Tables\Columns\TextColumn::make('default_price')
                                          ->label('Price')
