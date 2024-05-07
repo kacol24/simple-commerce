@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Illuminate\Http\Request;
 
 class PackingSlipController extends Controller
 {
@@ -11,14 +12,21 @@ class PackingSlipController extends Controller
      */
     public function __invoke(Order $order)
     {
-        $data = [
-            'order'      => $order,
-            'orderItems' => $order->items,
-            'customer'   => $order->customer,
-            'reseller'   => $order->reseller,
-            'channel'    => $order->channel,
+        $orders = [$order];
+
+        return view('order.packing_slip', compact('orders'));
+    }
+
+    public function bulk(Request $request)
+    {
+        $order = Order::whereIn('id', $request->order_ids)->first();
+        $orders = [
+            $order,
+            $order,
+            $order,
+            $order,
         ];
 
-        return view('order.packing_slip', $data);
+        return view('order.packing_slip', compact('orders'));
     }
 }

@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
+use App\States\Order\Processing;
+use App\States\Order\UnderShipment;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
@@ -13,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -169,10 +172,26 @@ class OrderResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\BulkAction::make('bulk_packing_slip')
+                                         ->label('Packing Slip')
+                                         ->icon('heroicon-s-printer')
+                                         ->deselectRecordsAfterCompletion()
+                                         ->openUrlInNewTab()
+                                         ->action(function (array $data, Collection $records) {
+                                             return redirect()->route(
+                                                 'packing_slip.bulk',
+                                                 [
+                                                     'order_ids' => $records->pluck('id')->toArray(),
+                                                 ]
+                                             );
+                                         }),
+            ])
+            ->checkIfRecordIsSelectableUsing(
+                fn(Model $record): bool => in_array($record->status, [
+                    Processing::class,
+                    UnderShipment::class,
                 ]),
-            ]);
+            );
     }
 
     public static function getRelations(): array

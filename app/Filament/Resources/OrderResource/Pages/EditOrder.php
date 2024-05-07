@@ -56,7 +56,7 @@ class EditOrder extends EditRecord
                                     ->url(function (Model $order) {
                                         return route('orders.packing_slip', $order);
                                     })
-                                    ->icon('heroicon-s-archive-box')
+                                    ->icon('heroicon-s-printer')
                                     ->openUrlInNewTab()
                                     ->color('gray')
                                     ->visible(function (Model $order) {
