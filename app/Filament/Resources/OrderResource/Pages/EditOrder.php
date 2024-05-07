@@ -234,7 +234,17 @@ class EditOrder extends EditRecord
     {
         return [
             TextInput::make('shipping_method')
-                     ->columnSpan(1),
+                     ->columnSpan(1)
+                     ->datalist(function () {
+                         $orders = Order::get();
+
+                         $suggestions = [];
+                         foreach ($orders as $order) {
+                             $suggestions[] = optional($order->shipping_breakdown)['shipping_method'];
+                         }
+
+                         return array_unique($suggestions);
+                     }),
             TextInput::make('shipping_total')
                      ->numeric()
                      ->prefix('Rp')
