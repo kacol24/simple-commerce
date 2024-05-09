@@ -220,7 +220,7 @@ class EditOrder extends EditRecord
                                }
 
                                return new HtmlString(
-                                   '<a target="_blank" href="'.$order->reseller->whatsapp_url.'">+62 '.$order->reseller->phone.'</a>'
+                                   '<a target="_blank" href="'.$order->reseller->whatsapp_url.'">+62 '.$order->reseller->friendly_phone.'</a>'
                                );
                            })
                            ->columnSpan(1),
