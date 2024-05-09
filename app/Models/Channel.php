@@ -15,9 +15,12 @@ class Channel extends Model
         'is_default',
         'name',
         'url',
+        'receipt_footer',
+        'socials',
     ];
 
     protected $casts = [
         'is_default' => 'boolean',
+        'socials'    => 'array',
     ];
 }

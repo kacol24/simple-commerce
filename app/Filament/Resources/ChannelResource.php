@@ -39,6 +39,11 @@ class ChannelResource extends Resource
                                                    ->maxLength(255),
                      ])
                      ->columns(2),
+                Forms\Components\RichEditor::make('receipt_footer'),
+                Forms\Components\KeyValue::make('socials')
+                                         ->keyLabel('Icon')
+                                         ->valueLabel('Handle')
+                                         ->reorderable(),
             ])->columns(1);
     }
 

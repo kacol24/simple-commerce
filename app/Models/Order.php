@@ -166,6 +166,11 @@ class Order extends Model
         return $this->shipping_total > 0;
     }
 
+    public function isReseller()
+    {
+        return (bool) $this->reseller_id;
+    }
+
     public static function generateOrderNo(): string
     {
         $year = date('Y');
