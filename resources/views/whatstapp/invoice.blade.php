@@ -1,4 +1,4 @@
-Invoice pesanan *{{ $order->channel->name }}*
+Invoice pesanan @unless($order->isReseller())*{{ $order->channel->name }}*@endunless
 
 *CUSTOMER*
 {{ $customer->name }}

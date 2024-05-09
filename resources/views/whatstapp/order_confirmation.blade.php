@@ -1,4 +1,4 @@
-Konfirmasi pesanan *{{ $order->channel->name }}*
+Konfirmasi pesanan @unless($order->isReseller())*{{ $order->channel->name }}*@endunless
 
 *CUSTOMER*
 {{ $customer->name }}
