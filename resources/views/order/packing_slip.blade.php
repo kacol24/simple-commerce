@@ -17,7 +17,6 @@
 
         * {
             font-family: monospace;
-            font-size: 6pt;
         }
     </style>
 </head>
@@ -78,9 +77,9 @@
                 @endif
             @endif
         </table>
-        <hr style="margin-top: 5mm;border-style: dashed;">
-        <strong>Packing List</strong>
-        <table style="width: 100%;" class="table table-sm table-bordered">
+        <hr style="margin-top: 5mm;border-style: dotted;">
+        <strong style="font-size: 6pt;">Packing List</strong>
+        <table style="width: 100%;font-size: 6pt;" class="table table-sm table-bordered">
             <thead>
             <tr>
                 <th>#</th>
