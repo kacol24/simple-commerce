@@ -32,11 +32,11 @@ abstract class OrderState extends State
     {
         return parent::config()
                      ->default(Draft::class)
-                     ->allowTransition(Draft::class,
+                     ->allowTransition([Draft::class, Processing::class],
                          PendingPayment::class)
-                     ->allowTransition([Draft::class, PendingPayment::class],
+                     ->allowTransition([Draft::class, PendingPayment::class, Processing::class],
                          PartialPayment::class)
-                     ->allowTransition([Draft::class, PendingPayment::class, PartialPayment::class],
+                     ->allowTransition([Draft::class, PendingPayment::class, PartialPayment::class, Processing::class],
                          Paid::class)
                      ->allowTransition([PendingPayment::class, PartialPayment::class, Paid::class],
                          Processing::class)
