@@ -9,7 +9,7 @@ Konfirmasi pesanan @unless($order->isReseller())*{{ $order->channel->name }}*@en
 _{!! nl2br($order->notes) !!}_
 @endif
 
-*INVOICE*
+*ORDER*
 @foreach($order->items as $item)
 {{ $item->quantity }} x {{ $item->title }}
 @if($item->option)
