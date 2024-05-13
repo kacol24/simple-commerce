@@ -37,7 +37,7 @@ class EditProduct extends EditRecord
 
         $record->defaultVariant()->basePrices()->first()->update([
             'price'      => $data['default_price'],
-            'cost_price' => $data['cost_price'] ?? null,
+            'cost_price' => $data['default_cost_price'] ?? null,
         ]);
         \DB::commit();
 

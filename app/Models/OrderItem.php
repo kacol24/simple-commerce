@@ -78,6 +78,16 @@ class OrderItem extends Model
         return implode(', ', $mapped);
     }
 
+    public function getTotalCostPriceAttribute()
+    {
+        return $this->quantity * ($this->cost_price ?? 0);
+    }
+
+    public function getProfitAttribute()
+    {
+        return $this->total - $this->total_cost_price;
+    }
+
     public function hasDiscount()
     {
         return $this->discount_total > 0;

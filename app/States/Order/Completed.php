@@ -10,4 +10,9 @@ class Completed extends OrderState
     {
         return 'success';
     }
+
+    public function colorHex()
+    {
+        return '#a3e635';
+    }
 }

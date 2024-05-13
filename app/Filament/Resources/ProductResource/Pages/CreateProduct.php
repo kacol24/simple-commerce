@@ -26,7 +26,8 @@ class CreateProduct extends CreateRecord
         ]);
 
         $variant->prices()->create([
-            'price' => $data['default_price'],
+            'price'      => $data['default_price'],
+            'cost_price' => $data['default_cost_price'],
         ]);
         \DB::commit();
 

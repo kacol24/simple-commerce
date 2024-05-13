@@ -98,6 +98,16 @@ class Order extends Model
         return $this->amounts()->where('amountable_type', Payment::class);
     }
 
+    public function getTotalBeforeShippingAttribute()
+    {
+        return $this->grand_total - $this->shipping_total;
+    }
+
+    public function getTotalCostPriceAttribute()
+    {
+        return $this->items->sum('total_cost_price');
+    }
+
     public function getFormattedSubTotalAttribute()
     {
         return $this->formatMoney($this->sub_total);

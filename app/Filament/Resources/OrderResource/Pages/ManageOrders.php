@@ -19,6 +19,7 @@ use Filament\Actions;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Support\Enums\MaxWidth;
@@ -27,7 +28,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class ManageOrders extends ManageRecords
 {
+    use ExposesTableToWidgets;
+
     protected static string $resource = OrderResource::class;
+
+    protected function getHeaderWidgets(): array
+    {
+        return OrderResource::getWidgets();
+    }
 
     protected function getHeaderActions(): array
     {

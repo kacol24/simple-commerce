@@ -204,6 +204,10 @@ class ItemsRelationManager extends RelationManager
                 TextColumn::make('price')
                           ->prefix('Rp')
                           ->numeric(thousandsSeparator: '.'),
+                TextColumn::make('cost_price')
+                          ->prefix('Rp')
+                          ->numeric(thousandsSeparator: '.')
+                          ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('quantity')
                           ->label('Qty.')
                           ->prefix('x ')
@@ -213,6 +217,11 @@ class ItemsRelationManager extends RelationManager
                 TextColumn::make('sub_total')
                           ->prefix('Rp')
                           ->numeric(thousandsSeparator: '.'),
+                TextColumn::make('total_cost_price')
+                          ->label('Total cost')
+                          ->prefix('Rp')
+                          ->numeric(thousandsSeparator: '.')
+                          ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('discount_total')
                           ->label('Discount')
                           ->prefix('Rp')

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
+use App\Filament\Resources\OrderResource\Widgets\OrderStats;
 use App\Models\Order;
 use App\States\Order\Processing;
 use App\States\Order\UnderShipment;
@@ -12,6 +13,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,6 +32,13 @@ class OrderResource extends Resource
     protected static ?int $navigationSort = 10;
 
     protected static ?string $recordTitleAttribute = 'order_no';
+
+    public static function getWidgets(): array
+    {
+        return [
+            OrderStats::class,
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -113,11 +122,27 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('sub_total')
                                          ->numeric(thousandsSeparator: '.')
                                          ->prefix('Rp')
-                                         ->toggleable(isToggledHiddenByDefault: true),
+                                         ->toggleable(isToggledHiddenByDefault: true)
+                                         ->summarize([
+                                             Sum::make()
+                                                ->formatStateUsing(
+                                                    function ($state) {
+                                                        return 'Rp'.number_format($state, 0, ',', '.');
+                                                    }
+                                                ),
+                                         ]),
                 Tables\Columns\TextColumn::make('shipping_total')
                                          ->numeric(thousandsSeparator: '.')
                                          ->prefix('Rp')
-                                         ->toggleable(isToggledHiddenByDefault: true),
+                                         ->toggleable(isToggledHiddenByDefault: true)
+                                         ->summarize([
+                                             Sum::make()
+                                                ->formatStateUsing(
+                                                    function ($state) {
+                                                        return 'Rp'.number_format($state, 0, ',', '.');
+                                                    }
+                                                ),
+                                         ]),
                 Tables\Columns\TextColumn::make('fees_total')
                                          ->numeric(thousandsSeparator: '.')
                                          ->prefix('Rp')
@@ -128,7 +153,15 @@ class OrderResource extends Resource
                                          ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('grand_total')
                                          ->numeric(thousandsSeparator: '.')
-                                         ->prefix('Rp'),
+                                         ->prefix('Rp')
+                                         ->summarize([
+                                             Sum::make()
+                                                ->formatStateUsing(
+                                                    function ($state) {
+                                                        return 'Rp'.number_format($state, 0, ',', '.');
+                                                    }
+                                                ),
+                                         ]),
                 Tables\Columns\TextColumn::make('paid_total')
                                          ->numeric(thousandsSeparator: '.')
                                          ->prefix('Rp'),
@@ -142,6 +175,9 @@ class OrderResource extends Resource
                                          ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('tag')
+                                           ->multiple()
+                                           ->relationship('tags', 'name'),
                 Tables\Filters\SelectFilter::make('status')
                                            ->options(Order::getStatusDropdown()),
                 Filter::make('created_at')
