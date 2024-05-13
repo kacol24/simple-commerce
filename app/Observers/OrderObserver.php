@@ -17,7 +17,8 @@ class OrderObserver implements ShouldHandleEventsAfterCommit
                 ->withProperties([
                     'new'      => $order->status,
                     'previous' => $order->getOriginal('status'),
-                ])->log('status-update');
+                ])
+                ->log('status-update');
         }
     }
 }

@@ -23,9 +23,11 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Components\View;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Database\Eloquent\Builder;
@@ -107,20 +109,34 @@ class EditOrder extends EditRecord
                                     'default' => 2,
                                     'md'      => 3,
                                 ])
+                                ->columnSpan(1)
                                 ->collapsible(),
                      ])
-                     ->columnSpan(['lg' => 2]),
+                     ->columns(2)
+                     ->columnSpan(['lg' => 3]),
                 Group::make()
                      ->schema([
                          Section::make('Order Summary')
                                 ->schema(static::getOrderSummarySection())
                                 ->columns([
-                                    '2xl' => 2,
+                                    '2xl' => 1,
+                                ])
+                                ->headerActions([
+                                    Action::make('View Log')
+                                          ->link()
+                                          ->icon('heroicon-c-queue-list')
+                                          ->modalContent(function (Model $order) {
+                                              $activityLog = $order->activity_logs;
+
+                                              return view('order.timeline', compact('activityLog'));
+                                          })
+                                          ->modalSubmitAction(false)
+                                          ->modalCancelAction(false),
                                 ]),
                      ])
                      ->columnSpan(['lg' => 1]),
             ])
-            ->columns(3);
+            ->columns(4);
     }
 
     public function getMaxContentWidth(): MaxWidth|string|null
@@ -150,10 +166,6 @@ class EditOrder extends EditRecord
         \DB::beginTransaction();
         $record->update($data);
 
-        if ($record->status->canTransitionTo($data['status'])) {
-            $record->status->transitionTo($data['status']);
-        }
-
         $order = app(Pipeline::class)
             ->send($record->refresh())
             ->through(config('commerce.order.pipelines'))
@@ -170,6 +182,55 @@ class EditOrder extends EditRecord
         return [
             Group::make()
                  ->schema([
+                     Select::make('channel_id')
+                           ->required()
+                           ->relationship('channel', 'name')
+                           ->selectablePlaceholder(false),
+                     TextInput::make('status')
+                              ->label('Status')
+                              ->formatStateUsing(function (Order $record) {
+                                  return $record->status->friendlyName();
+                              })
+                              ->disabled()
+                              ->hintAction(
+                                  Action::make('update_status_action')
+                                        ->label('Update Status')
+                                        ->requiresConfirmation()
+                                        ->modalContent(function (Order $record) {
+                                            return new HtmlString('Current status: '.$record->status->friendlyName());
+                                        })
+                                        ->action(function (Order $record, array $data) {
+                                            if ($record->status->canTransitionTo($data['status'])) {
+                                                $record->status->transitionTo($data['status']);
+
+                                                Notification::make()
+                                                            ->title('Status updated!')
+                                                            ->success()
+                                                            ->send();
+                                            }
+
+                                            return redirect()->route(EditOrder::getRouteName(), $record);
+                                        })
+                                        ->form([
+                                            ToggleButtons::make('status')
+                                                         ->label('To status')
+                                                         ->inline()
+                                                         ->required()
+                                                         ->options(Order::getStatusDropdown())
+                                                         ->colors(Order::getStatusDropdownColors())
+                                                         ->disableOptionWhen(function ($value, Component $livewire) {
+                                                             return ! in_array($value,
+                                                                 $livewire->getRecord()->status->transitionableStates());
+                                                         })
+                                                         ->disabled(function (Component $livewire) {
+                                                             return in_array(
+                                                                 (string) $livewire->getRecord()->status,
+                                                                 [Completed::class, Cancelled::class, Refunded::class]
+                                                             );
+                                                         }),
+
+                                        ]),
+                              ),
                      Select::make('customer_id')
                            ->label('Customer')
                            ->required()
@@ -202,36 +263,8 @@ class EditOrder extends EditRecord
                                    '<a target="_blank" href="'.$order->customer->whatsapp_url.'">+62 '.$order->customer->friendly_phone.'</a>'
                                );
                            })->columnSpan(1),
-                     Select::make('reseller_id')
-                           ->label('Reseller')
-                           ->relationship(
-                               name: 'reseller',
-                               titleAttribute: 'name',
-                           )
-                           ->searchable(['name', 'phone'])
-                           ->preload()
-                           ->createOptionForm(CustomerResource::getFormSchema())
-                           ->getOptionLabelFromRecordUsing(function (Model $customer) {
-                               $label = [];
-                               if ($customer->phone) {
-                                   $label[] = '['.$customer->phone.']';
-                               }
-
-                               $label[] = $customer->name;
-
-                               return implode(' ', $label);
-                           })
-                           ->different('customer_id')
-                           ->hint(function (Order $order) {
-                               if (! $order->reseller) {
-                                   return false;
-                               }
-
-                               return new HtmlString(
-                                   '<a target="_blank" href="'.$order->reseller->whatsapp_url.'">+62 '.$order->reseller->friendly_phone.'</a>'
-                               );
-                           })
-                           ->columnSpan(1),
+                     SpatieTagsInput::make('tags')
+                                    ->type('order'),
                  ])
                  ->columns(2),
             Textarea::make('notes'),
@@ -268,6 +301,7 @@ class EditOrder extends EditRecord
                           ->displayFormat('d F Y, H:i')
                           ->weekStartsOnMonday(),
             Section::make('Recipient')
+                   ->collapsible()
                    ->headerActions([
                        Action::make('load_address')
                              ->requiresConfirmation()
@@ -340,73 +374,14 @@ class EditOrder extends EditRecord
     public static function getOrderSummarySection()
     {
         return [
-            Group::make()
-                 ->schema([
-                     Select::make('status')
-                           ->label('Status')
-                           ->native(false)
-                           ->selectablePlaceholder(false)
-                           ->options(Order::getStatusDropdown())
-                           ->disableOptionWhen(function ($value, Component $livewire) {
-                               return ! in_array($value, $livewire->getRecord()->status->transitionableStates());
-                           })
-                           ->disabled(function (Component $livewire) {
-                               return in_array(
-                                   (string) $livewire->getRecord()->status,
-                                   [Completed::class, Cancelled::class, Refunded::class]
-                               );
-                           })
-                           ->hintAction(function () {
-                               return Action::make('Status Log')
-                                            ->link()
-                                            ->icon('heroicon-c-queue-list')
-                                            ->modalContent(function (Model $order) {
-                                                $activityLog = $order->activities()
-                                                                     ->orderBy('created_at', 'desc')
-                                                                     ->where('event', 'status-update')
-                                                                     ->get()
-                                                                     ->groupBy(
-                                                                         function ($log) {
-                                                                             return $log->created_at->format('Y-m-d');
-                                                                         }
-                                                                     )
-                                                                     ->map(
-                                                                         function ($logs) {
-                                                                             return [
-                                                                                 'date'  => $logs->first()->created_at->startOfDay(),
-                                                                                 'items' => $logs->map(function ($log) {
-                                                                                     return [
-                                                                                         'log' => $log,
-                                                                                     ];
-                                                                                 }),
-                                                                             ];
-                                                                         }
-                                                                     );
-
-                                                return view('order.timeline', compact('activityLog'));
-                                            })
-                                            ->modalSubmitAction(false)
-                                            ->modalCancelAction(false);
-                           }),
-                     Select::make('channel_id')
-                           ->required()
-                           ->relationship('channel', 'name')
-                           ->selectablePlaceholder(false),
-                     SpatieTagsInput::make('tags')
-                                    ->type('order'),
-                     Placeholder::make('created_at')
-                                ->hint(function ($record) {
-                                    return $record->created_at->diffForHumans();
-                                })
-                                ->content(function ($record) {
-                                    return $record->created_at->toDayDateTimeString();
-                                }),
-                 ]),
-            Group::make()
-                 ->extraAttributes(['class' => 'text-right'])
-                 ->schema([
-                     View::make('order.summary'),
-                 ]),
+            Placeholder::make('created_at')
+                       ->hint(function ($record) {
+                           return $record->created_at->diffForHumans();
+                       })
+                       ->content(function ($record) {
+                           return $record->created_at->toDayDateTimeString();
+                       }),
+            View::make('order.summary'),
         ];
     }
 

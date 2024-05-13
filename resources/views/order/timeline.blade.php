@@ -5,11 +5,11 @@
         <ul class="-my-8 divide-y-2 divide-gray-200 dark:divide-gray-600"
             role="list">
             @foreach ($activityLog as $log)
-                <li class="relative ml-5">
+                <li class="relative ml-5 {{ ! $loop->first ? 'mt-6' : '' }}">
                     <p class="ml-8 font-bold text-gray-950 dark:text-gray-200">
                         {{ $log['date']->format('F jS, Y') }}
                     </p>
-                    <ul class="mt-3 space-y-6">
+                    <ul class="mt-3 space-y-3">
                         @foreach ($log['items'] as $item)
                             @php
                                 $logUserName = $item['log']->causer ? ($item['log']->causer->fullName ?: $item['log']->causer->name) : null;
@@ -30,33 +30,18 @@
                                             @endif
                                         </div>
 
-                                        @php
-                                            $previousStatus = $item['log']->getExtraProperty('previous');
-                                            $newStatus = $item['log']->getExtraProperty('new');
-                                        @endphp
-                                        <div class="mt-1 text-sm font-medium text-gray-700 dark:text-gray-200">
-                                            <div class="flex flex-col">
-                                                Status updated
-                                                <div class="flex items-center mt-0.5">
-                                                    <x-filament::badge :color="(new $previousStatus(\App\Models\Order::class))->color()">
-                                                        {{ (new $previousStatus(\App\Models\Order::class))->friendlyName() }}
-                                                    </x-filament::badge>
-
-                                                    @svg('heroicon-m-chevron-right', [
-                                                    'class' => 'w-4 mx-1'
-                                                    ])
-
-                                                    <x-filament::badge :color="(new $newStatus(\App\Models\Order::class))->color()">
-                                                        {{ (new $newStatus(\App\Models\Order::class))->friendlyName() }}
-                                                    </x-filament::badge>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @switch($item['log']->event)
+                                            @case('created')
+                                                Created order
+                                                @break;
+                                            @default
+                                                @include('order.timeline.status_update', $item)
+                                        @endswitch
                                     </div>
 
                                     <time
                                         class="flex-shrink-0 ml-4 text-xs mt-0.5 text-gray-500 dark:text-gray-400 font-medium">
-                                        {{ $item['log']->created_at->format('h:ia') }}
+                                        {{ $item['log']->created_at->format('H:i') }}
                                     </time>
                                 </div>
                             </li>

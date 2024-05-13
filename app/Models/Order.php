@@ -52,6 +52,12 @@ class Order extends Model
                    ->mapWithKeys(fn($value, $key) => [$value => (new $value(self::class))->friendlyName()]);
     }
 
+    public static function getStatusDropdownColors()
+    {
+        return self::getStatesFor('status')
+                   ->mapWithKeys(fn($value, $key) => [$value => (new $value(self::class))->color()]);
+    }
+
     public function channel()
     {
         return $this->belongsTo(Channel::class);
@@ -163,6 +169,47 @@ class Order extends Model
         return view('order.packing_slip');
     }
 
+    public function getRecipientAddressAttribute()
+    {
+        return optional($this->shipping_breakdown)['recipient_address'] ?? $this->notes;
+    }
+
+    public function getRecipientPhoneAttribute()
+    {
+        return optional($this->shipping_breakdown)['recipient_phone'] ?? $this->customer->friendly_phone;
+    }
+
+    public function getRecipientNameAttribute()
+    {
+        return optional($this->shipping_breakdown)['recipient_name'] ?? $this->customer->name;
+    }
+
+    public function getActivityLogsAttribute()
+    {
+        $log = $this->activities()
+                    ->orderBy('created_at', 'desc')
+                    ->whereIn('event', ['status-update', 'created'])
+                    ->get()
+                    ->groupBy(
+                        fn($log) => $log->created_at->format('Y-m-d')
+                    )
+                    ->map(
+                        function ($logs) {
+                            return [
+                                'date'  => $logs->first()->created_at->startOfDay(),
+                                'items' => $logs->map(function (
+                                    $log
+                                ) {
+                                    return [
+                                        'log' => $log,
+                                    ];
+                                }),
+                            ];
+                        }
+                    );
+        return $log;
+    }
+
     public function hasShipping()
     {
         return $this->shipping_total > 0;
@@ -171,6 +218,21 @@ class Order extends Model
     public function isReseller()
     {
         return (bool) $this->reseller_id;
+    }
+
+    public function hasAddress()
+    {
+        return (bool) optional($this->shipping_breakdown)['recipient_address'];
+    }
+
+    public function hasRecipient()
+    {
+        return (bool) optional($this->shipping_breakdown)['recipient_name'];
+    }
+
+    public function hasRecipientPhone()
+    {
+        return (bool) optional($this->shipping_breakdown)['recipient_phone'];
     }
 
     public static function generateOrderNo(): string

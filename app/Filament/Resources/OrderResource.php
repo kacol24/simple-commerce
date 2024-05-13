@@ -98,7 +98,10 @@ class OrderResource extends Resource
                                                  return '+62 '.$order->customer->friendly_phone;
                                              }
                                          ),
-                Tables\Columns\TextColumn::make('shipping.customer'),
+                Tables\Columns\TextColumn::make('recipient_name')
+                                         ->description(function (Order $record) {
+                                             return $record->recipient_phone;
+                                         }),
                 Tables\Columns\TextColumn::make('reseller.name')
                                          ->searchable()
                                          ->description(
