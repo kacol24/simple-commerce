@@ -35,19 +35,19 @@
             </tr>
             <tr>
                 <td>
-                    {{ $order->customer->name }}
+                    {{ $order->recipient_name }}
                 </td>
             </tr>
-            @if($order->customer->phone)
+            @if($order->recipient_phone)
                 <tr>
                     <td>
-                        {{ '0' . $order->customer->friendly_phone }}
+                        {{ '0' . $order->recipient_phone }}
                     </td>
                 </tr>
             @endif
-            @if($order->notes)
+            @if($order->recipient_address)
                 <tr>
-                    <td>{!! nl2br($order->notes) !!}</td>
+                    <td>{!! nl2br($order->recipient_address) !!}</td>
                 </tr>
             @endif
         </table>
