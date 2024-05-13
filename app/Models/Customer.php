@@ -25,7 +25,13 @@ class Customer extends Model
 
     public function getNameWithPhoneAttribute()
     {
-        return '['.$this->phone.'] '.$this->name;
+        $parts = [];
+        if ($this->phone) {
+            $parts[] = '['.$this->phone.']';
+        }
+        $parts[] = $this->name;
+
+        return implode(' ', $parts);
     }
 
     public function getFriendlyPhoneAttribute()

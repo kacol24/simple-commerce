@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use App\Filament\Resources\CustomerResource;
 use App\Filament\Resources\OrderResource;
 use App\Models\Order;
 use App\States\Order\Cancelled;
@@ -53,6 +54,8 @@ class ManageOrders extends ManageRecords
                 Select::make('customer_id')
                       ->label('Customer')
                       ->required()
+                      ->createOptionForm(CustomerResource::getFormSchema())
+                      ->editOptionForm(CustomerResource::getFormSchema())
                       ->native(false)
                       ->relationship(
                           name: 'customer',
@@ -148,11 +151,11 @@ class ManageOrders extends ManageRecords
         foreach ($states as $state) {
             $instance = new $state(Order::class);
             $tabs[$instance->friendlyName()] = Tab::make()
-                                  ->query(
-                                      fn($query) => $query->whereState('status', $state)
-                                  )
-                                  ->badge($orders->where('status', $state)->count())
-                                  ->badgeColor($instance->color());
+                                                  ->query(
+                                                      fn($query) => $query->whereState('status', $state)
+                                                  )
+                                                  ->badge($orders->where('status', $state)->count())
+                                                  ->badgeColor($instance->color());
         }
 
         return $tabs;

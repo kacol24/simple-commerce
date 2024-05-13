@@ -5,6 +5,7 @@ namespace App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\CustomerResource;
 use App\Filament\Resources\OrderResource;
 use App\Models\Address;
+use App\Models\Customer;
 use App\Models\Order;
 use App\States\Order\Cancelled;
 use App\States\Order\Completed;
@@ -158,9 +159,12 @@ class EditOrder extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         $data['shipping_breakdown'] = [
-            'shipping_method' => $data['shipping_method'] ?? null,
-            'shipping_total'  => $data['shipping_total'] ?? 0,
-            'shipping_date'   => $data['shipping_date'] ?? null,
+            'shipping_method'   => $data['shipping_method'] ?? null,
+            'shipping_total'    => $data['shipping_total'] ?? 0,
+            'shipping_date'     => $data['shipping_date'] ?? null,
+            'recipient_name'    => $data['recipient_name'] ?? null,
+            'recipient_phone'   => $data['recipient_phone'] ?? null,
+            'recipient_address' => $data['recipient_address'] ?? null,
         ];
 
         \DB::beginTransaction();
@@ -317,6 +321,11 @@ class EditOrder extends EditRecord
                                  $record->shipping_breakdown = $shipping;
                                  $record->save();
 
+                                 Notification::make()
+                                             ->title('Recipient loaded!')
+                                             ->success()
+                                             ->send();
+
                                  return redirect()->route(EditOrder::getRouteName(), $record);
                              })
                              ->form([
@@ -324,11 +333,13 @@ class EditOrder extends EditRecord
                                        ->live()
                                        ->label('Customer')
                                        ->native(false)
-                                       ->relationship(
-                                           name: 'customer',
-                                           titleAttribute: 'name',
-                                           modifyQueryUsing: fn(Builder $query) => $query->active()
-                                       )
+                                       ->options(function () {
+                                           $customers = Customer::active()->get();
+
+                                           return $customers->mapWithKeys(function ($customer) {
+                                               return [$customer->id => $customer->name_with_phone];
+                                           });
+                                       })
                                        ->searchable(['name', 'phone'])
                                        ->preload()
                                        ->dehydrated(false)
@@ -360,7 +371,9 @@ class EditOrder extends EditRecord
                        TextInput::make('recipient_name')
                                 ->columnSpan(1),
                        TextInput::make('recipient_phone')
-                                ->columnSpan(1),
+                                ->columnSpan(1)
+                                ->tel()
+                                ->numeric(),
                        Textarea::make('recipient_address')
                                ->columnSpanFull(),
                    ])

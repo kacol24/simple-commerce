@@ -176,7 +176,7 @@ class Order extends Model
 
     public function getRecipientPhoneAttribute()
     {
-        return optional($this->shipping_breakdown)['recipient_phone'] ?? $this->customer->friendly_phone;
+        return optional($this->shipping_breakdown)['recipient_phone'];
     }
 
     public function getRecipientNameAttribute()
