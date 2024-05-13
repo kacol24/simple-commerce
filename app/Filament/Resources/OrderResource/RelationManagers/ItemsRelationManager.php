@@ -216,7 +216,15 @@ class ItemsRelationManager extends RelationManager
                 TextColumn::make('discount_total')
                           ->label('Discount')
                           ->prefix('Rp')
-                          ->numeric(thousandsSeparator: '.'),
+                          ->numeric(thousandsSeparator: '.')
+                          ->summarize([
+                              Sum::make()
+                                 ->formatStateUsing(
+                                     function ($state) {
+                                         return 'Rp'.number_format($state, 0, ',', '.');
+                                     }
+                                 ),
+                          ]),
                 TextColumn::make('total')
                           ->prefix('Rp')
                           ->numeric(thousandsSeparator: '.')
