@@ -51,6 +51,12 @@ class CustomerResource extends Resource
                                                ->prefix('+62'),
                  ])
                  ->columns(2),
+            Forms\Components\Repeater::make('addresses')
+                                     ->relationship('addresses')
+                                     ->reorderable(false)
+                                     ->simple(
+                                         Forms\Components\Textarea::make('address')
+                                     ),
         ];
     }
 

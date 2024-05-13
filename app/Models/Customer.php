@@ -45,4 +45,9 @@ class Customer extends Model
     {
         return $query->where('is_active', true);
     }
+
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OrderResource\Pages;
 
 use App\Filament\Resources\CustomerResource;
 use App\Filament\Resources\OrderResource;
+use App\Models\Address;
 use App\Models\Order;
 use App\States\Order\Cancelled;
 use App\States\Order\Completed;
@@ -24,6 +25,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\View;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Database\Eloquent\Builder;
@@ -130,6 +132,9 @@ class EditOrder extends EditRecord
     {
         $data['shipping_method'] = optional($data['shipping_breakdown'])['shipping_method'];
         $data['shipping_date'] = optional($data['shipping_breakdown'])['shipping_date'];
+        $data['recipient_name'] = optional($data['shipping_breakdown'])['recipient_name'];
+        $data['recipient_phone'] = optional($data['shipping_breakdown'])['recipient_phone'];
+        $data['recipient_address'] = optional($data['shipping_breakdown'])['recipient_address'];
 
         return $data;
     }
@@ -177,6 +182,7 @@ class EditOrder extends EditRecord
                            ->searchable(['name', 'phone'])
                            ->preload()
                            ->createOptionForm(CustomerResource::getFormSchema())
+                           ->editOptionForm(CustomerResource::getFormSchema())
                            ->getOptionLabelFromRecordUsing(function (Model $customer) {
                                $label = [];
                                if ($customer->phone) {
@@ -261,6 +267,73 @@ class EditOrder extends EditRecord
                           ->format('Y-m-d H:i:s')
                           ->displayFormat('d F Y, H:i')
                           ->weekStartsOnMonday(),
+            Section::make('Recipient')
+                   ->headerActions([
+                       Action::make('load_address')
+                             ->requiresConfirmation()
+                             ->modalWidth(width: MaxWidth::ExtraLarge)
+                             ->action(function ($data, Order $record, Component $livewire) {
+                                 $address = Address::find($data['address']);
+
+                                 $shipping = $record->shipping_breakdown;
+                                 $shipping['recipient_name'] = $address->customer->name;
+                                 $shipping['recipient_phone'] = $address->customer->phone;
+                                 $shipping['recipient_address'] = $address->address;
+
+                                 $record->shipping_breakdown = $shipping;
+                                 $record->save();
+
+                                 return redirect()->route(EditOrder::getRouteName(), $record);
+                             })
+                             ->form([
+                                 Select::make('shipping_customer_id')
+                                       ->live()
+                                       ->label('Customer')
+                                       ->native(false)
+                                       ->relationship(
+                                           name: 'customer',
+                                           titleAttribute: 'name',
+                                           modifyQueryUsing: fn(Builder $query) => $query->active()
+                                       )
+                                       ->searchable(['name', 'phone'])
+                                       ->preload()
+                                       ->dehydrated(false)
+                                       ->afterStateUpdated(function (Component $livewire) {
+                                           $livewire->reset('data.address');
+                                       })
+                                       ->getOptionLabelFromRecordUsing(function (Model $customer) {
+                                           $label = [];
+                                           if ($customer->phone) {
+                                               $label[] = '['.$customer->phone.']';
+                                           }
+
+                                           $label[] = $customer->name;
+
+                                           return implode(' ', $label);
+                                       })
+                                       ->columnSpan(1),
+                                 Radio::make('address')
+                                      ->required()
+                                      ->options(function (Get $get) {
+                                          $customerId = $get('shipping_customer_id');
+
+                                          return Address::where('customer_id', $customerId)
+                                                        ->pluck('address', 'id');
+                                      }),
+                             ]),
+                   ])
+                   ->schema([
+                       TextInput::make('recipient_name')
+                                ->columnSpan(1),
+                       TextInput::make('recipient_phone')
+                                ->columnSpan(1),
+                       Textarea::make('recipient_address')
+                               ->columnSpanFull(),
+                   ])
+                   ->columns([
+                       'default' => 2,
+                   ])
+                   ->columnSpanFull(),
         ];
     }
 
