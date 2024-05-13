@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Spatie\ModelStates\HasStates;
+use Spatie\Tags\HasTags;
 
 class Order extends Model
 {
@@ -19,6 +20,7 @@ class Order extends Model
     use SoftDeletes;
     use LogsActivity;
     use FormatsMoney;
+    use HasTags;
 
     const SHIPPING_BREAKDOWN_MAP = [
         'shipping_method' => 'Kurir',

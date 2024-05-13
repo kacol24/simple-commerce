@@ -16,8 +16,10 @@ use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\View;
@@ -317,6 +319,8 @@ class EditOrder extends EditRecord
                            ->required()
                            ->relationship('channel', 'name')
                            ->selectablePlaceholder(false),
+                     SpatieTagsInput::make('tags')
+                                    ->type('order'),
                      Placeholder::make('created_at')
                                 ->hint(function ($record) {
                                     return $record->created_at->diffForHumans();

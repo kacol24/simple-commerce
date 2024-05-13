@@ -83,7 +83,10 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('order_no')
                                          ->label('Order No')
                                          ->sortable()
-                                         ->searchable(),
+                                         ->searchable()
+                                         ->description(function (Order $order) {
+                                             return $order->tagsWithType('order')->pluck('name')->implode(', ');
+                                         }),
                 Tables\Columns\TextColumn::make('customer.name')
                                          ->searchable()
                                          ->description(
@@ -95,6 +98,7 @@ class OrderResource extends Resource
                                                  return '+62 '.$order->customer->friendly_phone;
                                              }
                                          ),
+                Tables\Columns\TextColumn::make('shipping.customer'),
                 Tables\Columns\TextColumn::make('reseller.name')
                                          ->searchable()
                                          ->description(
@@ -107,13 +111,17 @@ class OrderResource extends Resource
                                          ->numeric(thousandsSeparator: '.')
                                          ->prefix('Rp')
                                          ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('discount_total')
+                Tables\Columns\TextColumn::make('shipping_total')
                                          ->numeric(thousandsSeparator: '.')
                                          ->prefix('Rp')
                                          ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('fees_total')
                                          ->numeric(thousandsSeparator: '.')
                                          ->prefix('Rp')
+                                         ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('discount_total')
+                                         ->numeric(thousandsSeparator: '.')
+                                         ->prefix('- Rp')
                                          ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('grand_total')
                                          ->numeric(thousandsSeparator: '.')
