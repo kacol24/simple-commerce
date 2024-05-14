@@ -6,6 +6,7 @@ use App\Models\Amountables\Discount;
 use App\Models\Amountables\Fee;
 use App\Models\Amountables\Payment;
 use App\Models\Concerns\FormatsMoney;
+use App\Models\Concerns\HasPhone;
 use App\Models\Concerns\LogsActivity;
 use App\States\OrderState;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,7 @@ class Order extends Model
     use LogsActivity;
     use FormatsMoney;
     use HasTags;
+    use HasPhone;
 
     const SHIPPING_BREAKDOWN_MAP = [
         'shipping_method' => 'Kurir',
@@ -187,6 +189,11 @@ class Order extends Model
     public function getRecipientPhoneAttribute()
     {
         return optional($this->shipping_breakdown)['recipient_phone'];
+    }
+
+    public function getRecipientPhoneForHumansAttribute()
+    {
+        return $this->friendlyPhone($this->recipient_phone);
     }
 
     public function getRecipientNameAttribute()
