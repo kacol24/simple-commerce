@@ -33,9 +33,9 @@ class OrderStats extends BaseWidget
         [$cost, $revenue] = $this->getPageTableQuery()
                                  ->where('status', Completed::class)
                                  ->get()
-                                 ->reduce(fn($carry, $order) => [
+                                 ->reduceSpread(fn($cost, $revenue, $order) => [
                                      $order->total_cost_price ?? 0, $order->total_before_shipping ?? 0,
-                                 ]);
+                                 ], 0, 0);
 
         return [
             Stat::make('Orders', $this->getPageTableQuery()->count())
@@ -48,7 +48,8 @@ class OrderStats extends BaseWidget
             Stat::make(
                 'Avg. order value',
                 'Rp'.number_format($this->getPageTableQuery()->avg('sub_total'), thousands_separator: '.')
-            ),
+            )
+                ->description('Calculated from subtotal'),
             Stat::make(
                 'Est. profit',
                 'Rp'.number_format($revenue - $cost, thousands_separator: '.')
