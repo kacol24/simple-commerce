@@ -37,6 +37,8 @@ class ProductResource extends Resource
                                           ->required()
                                           ->maxLength(255)
                                           ->autocapitalize('words')
+                                          ->datalist(Product::pluck('title'))
+                                          ->autocomplete(false)
                                           ->columnSpan([
                                               'default' => 'full',
                                               'md'      => 1,
@@ -44,6 +46,8 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('default_sku')
                                           ->label('SKU')
                                           ->required()
+                                          ->autocomplete(false)
+                                          ->datalist(Product::get()->pluck('default_sku'))
                                           ->columnSpan([
                                               'default' => 'full',
                                               'md'      => 1,
