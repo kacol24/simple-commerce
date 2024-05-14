@@ -16,6 +16,7 @@ use App\States\Order\UnderShipment;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
@@ -104,15 +105,116 @@ class EditOrder extends EditRecord
                                 ->schema(static::getOrderDetailsSection())
                                 ->columns(1)
                                 ->columnSpan(1)
-                                ->collapsible(),
+                                ->collapsible()
+                                ->headerActions([
+                                    Action::make('update_status_action')
+                                          ->label('Update Status')
+                                          ->color('warning')
+                                          ->requiresConfirmation()
+                                          ->modalContent(function (Order $record) {
+                                              return new HtmlString('Current status: '.$record->status->friendlyName());
+                                          })
+                                          ->action(function (Order $record, array $data) {
+                                              if ($record->status->canTransitionTo($data['status'])) {
+                                                  $record->status->transitionTo($data['status']);
+
+                                                  Notification::make()
+                                                              ->title('Status updated!')
+                                                              ->success()
+                                                              ->send();
+                                              }
+
+                                              return redirect()->route(EditOrder::getRouteName(), $record);
+                                          })
+                                          ->form([
+                                              ToggleButtons::make('status')
+                                                           ->label('To status')
+                                                           ->inline()
+                                                           ->required()
+                                                           ->options(Order::getStatusDropdown())
+                                                           ->colors(Order::getStatusDropdownColors())
+                                                           ->disableOptionWhen(function ($value, Component $livewire) {
+                                                               return ! in_array($value,
+                                                                   $livewire->getRecord()->status->transitionableStates());
+                                                           })
+                                                           ->disabled(function (Component $livewire) {
+                                                               return in_array(
+                                                                   (string) $livewire->getRecord()->status,
+                                                                   [Completed::class, Cancelled::class, Refunded::class]
+                                                               );
+                                                           }),
+
+                                          ]),
+                                ]),
                          Section::make('Shipping')
                                 ->schema(static::getShippingSection())
                                 ->columns([
                                     'default' => 2,
-                                    'md'      => 3,
                                 ])
                                 ->columnSpan(1)
-                                ->collapsible(),
+                                ->collapsible()
+                                ->headerActions([
+                                    Action::make('load_address')
+                                          ->color('gray')
+                                          ->requiresConfirmation()
+                                          ->modalWidth(width: MaxWidth::ExtraLarge)
+                                          ->action(function ($data, Order $record, Component $livewire) {
+                                              $address = Address::find($data['address']);
+
+                                              $shipping = $record->shipping_breakdown;
+                                              $shipping['recipient_name'] = $address->customer->name;
+                                              $shipping['recipient_phone'] = $address->customer->phone;
+                                              $shipping['recipient_address'] = $address->address;
+
+                                              $record->shipping_breakdown = $shipping;
+                                              $record->save();
+
+                                              Notification::make()
+                                                          ->title('Recipient loaded!')
+                                                          ->success()
+                                                          ->send();
+
+                                              return redirect()->route(EditOrder::getRouteName(), $record);
+                                          })
+                                          ->form([
+                                              Select::make('shipping_customer_id')
+                                                    ->live()
+                                                    ->label('Customer')
+                                                    ->native(false)
+                                                    ->options(function () {
+                                                        $customers = Customer::active()->get();
+
+                                                        return $customers->mapWithKeys(function ($customer) {
+                                                            return [$customer->id => $customer->name_with_phone];
+                                                        });
+                                                    })
+                                                    ->searchable(['name', 'phone'])
+                                                    ->preload()
+                                                    ->dehydrated(false)
+                                                    ->afterStateUpdated(function (Component $livewire) {
+                                                        $livewire->reset('data.address');
+                                                    })
+                                                    ->getOptionLabelFromRecordUsing(function (Model $customer) {
+                                                        $label = [];
+                                                        if ($customer->phone) {
+                                                            $label[] = '['.$customer->phone.']';
+                                                        }
+
+                                                        $label[] = $customer->name;
+
+                                                        return implode(' ', $label);
+                                                    })
+                                                    ->columnSpan(1),
+                                              Radio::make('address')
+                                                   ->required()
+                                                   ->options(function (Get $get) {
+                                                       $customerId = $get('shipping_customer_id');
+
+                                                       return Address::where('customer_id', $customerId)
+                                                                     ->pluck('address', 'id');
+                                                   }),
+                                          ]),
+                                ]),
                      ])
                      ->columns(2)
                      ->columnSpan(['lg' => 3]),
@@ -125,7 +227,7 @@ class EditOrder extends EditRecord
                                 ])
                                 ->headerActions([
                                     Action::make('View Log')
-                                          ->link()
+                                          ->color('info')
                                           ->icon('heroicon-c-queue-list')
                                           ->modalContent(function (Model $order) {
                                               $activityLog = $order->activity_logs;
@@ -196,46 +298,7 @@ class EditOrder extends EditRecord
                               ->formatStateUsing(function (Order $record) {
                                   return $record->status->friendlyName();
                               })
-                              ->disabled()
-                              ->hintAction(
-                                  Action::make('update_status_action')
-                                        ->label('Update Status')
-                                        ->requiresConfirmation()
-                                        ->modalContent(function (Order $record) {
-                                            return new HtmlString('Current status: '.$record->status->friendlyName());
-                                        })
-                                        ->action(function (Order $record, array $data) {
-                                            if ($record->status->canTransitionTo($data['status'])) {
-                                                $record->status->transitionTo($data['status']);
-
-                                                Notification::make()
-                                                            ->title('Status updated!')
-                                                            ->success()
-                                                            ->send();
-                                            }
-
-                                            return redirect()->route(EditOrder::getRouteName(), $record);
-                                        })
-                                        ->form([
-                                            ToggleButtons::make('status')
-                                                         ->label('To status')
-                                                         ->inline()
-                                                         ->required()
-                                                         ->options(Order::getStatusDropdown())
-                                                         ->colors(Order::getStatusDropdownColors())
-                                                         ->disableOptionWhen(function ($value, Component $livewire) {
-                                                             return ! in_array($value,
-                                                                 $livewire->getRecord()->status->transitionableStates());
-                                                         })
-                                                         ->disabled(function (Component $livewire) {
-                                                             return in_array(
-                                                                 (string) $livewire->getRecord()->status,
-                                                                 [Completed::class, Cancelled::class, Refunded::class]
-                                                             );
-                                                         }),
-
-                                        ]),
-                              ),
+                              ->disabled(),
                      Select::make('customer_id')
                            ->label('Customer')
                            ->required()
@@ -297,93 +360,30 @@ class EditOrder extends EditRecord
                      ->numeric()
                      ->prefix('Rp')
                      ->columnSpan(1),
+            TextInput::make('shipping_awb')
+                     ->columnSpan(1),
             DateTimePicker::make('shipping_date')
-                          ->columnSpan([
-                              'default' => 'full',
-                              'md'      => 1,
-                          ])
+                          ->columnSpan(1)
                           ->native(false)
                           ->seconds(false)
                           ->format('Y-m-d H:i:s')
                           ->displayFormat('d F Y, H:i')
                           ->weekStartsOnMonday(),
-            Section::make('Recipient')
-                   ->collapsible()
-                   ->headerActions([
-                       Action::make('load_address')
-                             ->requiresConfirmation()
-                             ->modalWidth(width: MaxWidth::ExtraLarge)
-                             ->action(function ($data, Order $record, Component $livewire) {
-                                 $address = Address::find($data['address']);
-
-                                 $shipping = $record->shipping_breakdown;
-                                 $shipping['recipient_name'] = $address->customer->name;
-                                 $shipping['recipient_phone'] = $address->customer->phone;
-                                 $shipping['recipient_address'] = $address->address;
-
-                                 $record->shipping_breakdown = $shipping;
-                                 $record->save();
-
-                                 Notification::make()
-                                             ->title('Recipient loaded!')
-                                             ->success()
-                                             ->send();
-
-                                 return redirect()->route(EditOrder::getRouteName(), $record);
-                             })
-                             ->form([
-                                 Select::make('shipping_customer_id')
-                                       ->live()
-                                       ->label('Customer')
-                                       ->native(false)
-                                       ->options(function () {
-                                           $customers = Customer::active()->get();
-
-                                           return $customers->mapWithKeys(function ($customer) {
-                                               return [$customer->id => $customer->name_with_phone];
-                                           });
-                                       })
-                                       ->searchable(['name', 'phone'])
-                                       ->preload()
-                                       ->dehydrated(false)
-                                       ->afterStateUpdated(function (Component $livewire) {
-                                           $livewire->reset('data.address');
-                                       })
-                                       ->getOptionLabelFromRecordUsing(function (Model $customer) {
-                                           $label = [];
-                                           if ($customer->phone) {
-                                               $label[] = '['.$customer->phone.']';
-                                           }
-
-                                           $label[] = $customer->name;
-
-                                           return implode(' ', $label);
-                                       })
-                                       ->columnSpan(1),
-                                 Radio::make('address')
-                                      ->required()
-                                      ->options(function (Get $get) {
-                                          $customerId = $get('shipping_customer_id');
-
-                                          return Address::where('customer_id', $customerId)
-                                                        ->pluck('address', 'id');
-                                      }),
-                             ]),
-                   ])
-                   ->schema([
-                       TextInput::make('recipient_name')
-                                ->columnSpan(1),
-                       TextInput::make('recipient_phone')
-                                ->columnSpan(1)
-                                ->tel()
-                                ->numeric(),
-                       Textarea::make('recipient_address')
-                               ->columnSpanFull(),
-                   ])
-                   ->columns([
-                       'default' => 2,
-                   ])
-                   ->columnSpanFull(),
+            Fieldset::make('Recipient')
+                    ->schema([
+                        TextInput::make('recipient_name')
+                                 ->columnSpan(1),
+                        TextInput::make('recipient_phone')
+                                 ->columnSpan(1)
+                                 ->tel()
+                                 ->numeric(),
+                        Textarea::make('recipient_address')
+                                ->columnSpanFull(),
+                    ])
+                    ->columns([
+                        'default' => 2,
+                    ])
+                    ->columnSpanFull(),
         ];
     }
 
