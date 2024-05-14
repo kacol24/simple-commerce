@@ -37,6 +37,7 @@ use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\HtmlString;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Spatie\Tags\Tag;
 
 class EditOrder extends EditRecord
 {
@@ -268,6 +269,7 @@ class EditOrder extends EditRecord
                                );
                            })->columnSpan(2),
                      SpatieTagsInput::make('tags')
+                                    ->suggestions(Tag::where('type', 'order')->pluck('name', 'id'))
                                     ->type('order')
                                     ->columnSpan(2),
                  ])
