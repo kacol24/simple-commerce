@@ -33,9 +33,12 @@ class OrderStats extends BaseWidget
         [$cost, $revenue] = $this->getPageTableQuery()
                                  ->where('status', Completed::class)
                                  ->get()
-                                 ->reduceSpread(fn($cost, $revenue, $order) => [
-                                     $order->total_cost_price ?? 0, $order->total_before_shipping ?? 0,
-                                 ], 0, 0);
+                                 ->reduceSpread(function ($cost, $revenue, $order) {
+                                     $cost += $order->total_cost_price ?? 0;
+                                     $revenue += $order->total_before_shipping ?? 0;
+                                     
+                                     return [$cost, $revenue];
+                                 }, 0, 0);
 
         return [
             Stat::make('Orders', $this->getPageTableQuery()->count())
