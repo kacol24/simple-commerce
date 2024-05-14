@@ -109,7 +109,7 @@ class OrderResource extends Resource
                                          ),
                 Tables\Columns\TextColumn::make('recipient_name')
                                          ->description(function (Order $record) {
-                                             return $record->recipient_phone;
+                                             return $record->recipient_phone_for_humans;
                                          }),
                 Tables\Columns\TextColumn::make('reseller.name')
                                          ->searchable()
@@ -177,6 +177,7 @@ class OrderResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('tag')
                                            ->multiple()
+                                           ->preload()
                                            ->relationship('tags', 'name'),
                 Tables\Filters\SelectFilter::make('status')
                                            ->options(Order::getStatusDropdown()),
