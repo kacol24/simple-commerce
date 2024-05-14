@@ -57,8 +57,6 @@ class ManageOrders extends ManageRecords
                 Select::make('channel_id')
                       ->required()
                       ->relationship('channel', 'name'),
-            ]),
-            Grid::make(2)->schema([
                 Select::make('customer_id')
                       ->label('Customer')
                       ->required()
@@ -82,25 +80,6 @@ class ManageOrders extends ManageRecords
                           return implode(' ', $label);
                       })
                       ->preload(),
-                Select::make('reseller_id')
-                      ->label('Reseller')
-                      ->relationship(
-                          name: 'reseller',
-                          titleAttribute: 'name',
-                      )
-                      ->searchable(['name', 'phone'])
-                      ->getOptionLabelFromRecordUsing(function (Model $customer) {
-                          $label = [];
-                          if ($customer->phone) {
-                              $label[] = '['.$customer->phone.']';
-                          }
-
-                          $label[] = $customer->name;
-
-                          return implode(' ', $label);
-                      })
-                      ->preload()
-                      ->different('customer_id'),
             ]),
             Textarea::make('notes')
                     ->columnSpanFull(),

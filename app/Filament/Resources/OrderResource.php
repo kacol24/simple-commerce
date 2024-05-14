@@ -104,12 +104,14 @@ class OrderResource extends Resource
                                                      return null;
                                                  }
 
-                                                 return '+62 '.$order->customer->friendly_phone;
+                                                 return '0'.$order->customer->friendly_phone;
                                              }
                                          ),
                 Tables\Columns\TextColumn::make('recipient_name')
                                          ->description(function (Order $record) {
-                                             return $record->recipient_phone_for_humans;
+                                             if ($record->recipient_phone) {
+                                                 return '0' . $record->recipient_phone_for_humans;
+                                             }
                                          }),
                 Tables\Columns\TextColumn::make('reseller.name')
                                          ->searchable()
