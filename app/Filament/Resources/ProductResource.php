@@ -148,11 +148,12 @@ class ProductResource extends Resource
                                              'is_active' => (bool) $data['is_active'],
                                          ]);
                               }),
-                    //Tables\Actions\DeleteBulkAction::make(),
-                    //Tables\Actions\ForceDeleteBulkAction::make(),
-                    //Tables\Actions\RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->persistFiltersInSession()
+            ->persistSortInSession()
+            ->persistSearchInSession()
+            ->persistColumnSearchesInSession();
     }
 
     public static function getRelations(): array
