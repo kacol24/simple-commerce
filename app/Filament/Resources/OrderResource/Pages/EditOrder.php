@@ -266,9 +266,10 @@ class EditOrder extends EditRecord
                                return new HtmlString(
                                    '<a target="_blank" href="'.$order->customer->whatsapp_url.'">+62 '.$order->customer->friendly_phone.'</a>'
                                );
-                           })->columnSpan(1),
+                           })->columnSpan(2),
                      SpatieTagsInput::make('tags')
-                                    ->type('order'),
+                                    ->type('order')
+                                    ->columnSpan(2),
                  ])
                  ->columns(2),
             Textarea::make('notes'),
