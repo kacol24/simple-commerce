@@ -5,7 +5,15 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
-use Filament\Forms;
+use App\Models\ProductVariant;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -28,51 +36,88 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Toggle::make('is_active')
-                                       ->label('Active?')
-                                       ->default(true)
-                                       ->required()
-                                       ->columnSpanFull(),
-                Forms\Components\TextInput::make('title')
-                                          ->required()
-                                          ->maxLength(255)
-                                          ->autocapitalize('words')
-                                          ->datalist(Product::pluck('title'))
-                                          ->autocomplete(false)
-                                          ->columnSpan([
-                                              'default' => 'full',
-                                              'md'      => 1,
-                                          ]),
-                Forms\Components\TextInput::make('default_sku')
-                                          ->label('SKU')
-                                          ->required()
-                                          ->autocomplete(false)
-                                          ->datalist(Product::get()->pluck('default_sku'))
-                                          ->columnSpan([
-                                              'default' => 'full',
-                                              'md'      => 1,
-                                          ]),
-                Forms\Components\TextInput::make('default_price')
-                                          ->numeric()
-                                          ->prefix('Rp')
-                                          ->label('Price')
-                                          ->required()
-                                          ->columnSpan([
-                                              'md' => 1,
-                                          ]),
-                Forms\Components\TextInput::make('default_cost_price')
-                                          ->numeric()
-                                          ->prefix('Rp')
-                                          ->label('Cost Price')
-                                          ->columnSpan([
-                                              'md' => 1,
-                                          ]),
-                Forms\Components\TextInput::make('short_description')
-                                          ->label('Description')
-                                          ->maxLength(255)
-                                          ->columnSpanFull(),
-                Forms\Components\RichEditor::make('long_description')
-                                           ->columnSpanFull(),
+                Grid::make()
+                    ->schema([
+                        Group::make()
+                             ->columns(2)
+                             ->schema([
+                                 Section::make()
+                                        ->columns(2)
+                                        ->schema([
+                                            TextInput::make('title')
+                                                     ->required()
+                                                     ->maxLength(255)
+                                                     ->autocapitalize('words')
+                                                     ->datalist(Product::pluck('title'))
+                                                     ->autocomplete(false)
+                                                     ->columnSpan([
+                                                         'default' => 'full',
+                                                         'md'      => 1,
+                                                     ]),
+                                            TextInput::make('default_sku')
+                                                     ->label('SKU')
+                                                     ->required()
+                                                     ->unique('product_variants', 'sku')
+                                                     ->autocomplete(false)
+                                                     ->datalist(ProductVariant::get()->pluck('sku'))
+                                                     ->columnSpan([
+                                                         'default' => 'full',
+                                                         'md'      => 1,
+                                                     ]),
+                                            Fieldset::make('Pricing')
+                                                    ->schema([
+                                                        TextInput::make('default_price')
+                                                                 ->numeric()
+                                                                 ->prefix('Rp')
+                                                                 ->label('Price')
+                                                                 ->required()
+                                                                 ->columnSpan([
+                                                                     'md' => 1,
+                                                                 ]),
+                                                        TextInput::make('default_cost_price')
+                                                                 ->helperText('Customers will not see this price.')
+                                                                 ->numeric()
+                                                                 ->prefix('Rp')
+                                                                 ->label('Cost Price')
+                                                                 ->columnSpan([
+                                                                     'md' => 1,
+                                                                 ]),
+                                                    ]),
+                                        ]),
+                                 Section::make('Additional Info')
+                                        ->schema([
+                                            TextInput::make('short_description')
+                                                     ->label('Description')
+                                                     ->maxLength(255)
+                                                     ->columnSpanFull(),
+                                            RichEditor::make('long_description')
+                                                      ->columnSpanFull(),
+                                        ])
+                                        ->collapsible()
+                                        ->persistCollapsed()
+                                        ->collapsed(true),
+                             ])
+                             ->columnSpan(2),
+                        Group::make()
+                             ->schema([
+                                 Section::make('Status')
+                                        ->schema([
+                                            Toggle::make('is_active')
+                                                  ->label('Active?')
+                                                  ->default(true)
+                                                  ->required()
+                                                  ->columnSpanFull(),
+                                        ]),
+                                 Section::make('Associations')
+                                        ->schema([
+                                            Select::make('brand_id')
+                                                  ->relationship('brand', 'name')
+                                                  ->preload(),
+                                        ]),
+                             ])
+                             ->columnSpan(1),
+                    ])
+                    ->columns(3),
             ])
             ->columns([
                 'default' => 2,
