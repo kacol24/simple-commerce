@@ -28,11 +28,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
-
+    
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    
     protected static ?string $navigationGroup = 'Catalog';
-
+    
     public static function form(Form $form): Form
     {
         return $form
@@ -124,7 +124,7 @@ class ProductResource extends Resource
                 'default' => 2,
             ]);
     }
-
+    
     public static function table(Table $table): Table
     {
         return $table
@@ -220,17 +220,17 @@ class ProductResource extends Resource
                                       $updates['brand_id'] = $data['brand_id'];
                                       $notify[] = 'Brand';
                                   }
-
+                        
                                   if (count($updates)) {
                                       Product::whereIn('id', $records->pluck('id'))
                                              ->update($updates);
-
+                            
                                       return Notification::make()
                                                          ->title(implode(', ', $notify).' updated!')
                                                          ->success()
                                                          ->send();
                                   }
-
+                        
                                   Notification::make()
                                               ->title('No record was updated.')
                                               ->info()
@@ -238,19 +238,20 @@ class ProductResource extends Resource
                               }),
                 ]),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->persistFiltersInSession()
             ->persistSortInSession()
             ->persistSearchInSession()
             ->persistColumnSearchesInSession();
     }
-
+    
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-
+    
     public static function getPages(): array
     {
         return [
@@ -260,7 +261,7 @@ class ProductResource extends Resource
             'edit'   => Pages\EditProduct::route('/{record}/edit'),
         ];
     }
-
+    
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

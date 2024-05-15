@@ -110,7 +110,7 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('recipient_name')
                                          ->description(function (Order $record) {
                                              if ($record->recipient_phone) {
-                                                 return '0' . $record->recipient_phone_for_humans;
+                                                 return '0'.$record->recipient_phone_for_humans;
                                              }
                                          }),
                 Tables\Columns\TextColumn::make('reseller.name')
@@ -236,6 +236,7 @@ class OrderResource extends Resource
                                              );
                                          }),
             ])
+            ->defaultSort('created_at')
             ->checkIfRecordIsSelectableUsing(
                 fn(Model $record): bool => in_array($record->status, [
                     Processing::class,
