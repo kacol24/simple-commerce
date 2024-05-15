@@ -303,6 +303,11 @@ class EditOrder extends EditRecord
                            ->label('Customer')
                            ->required()
                            ->native(false)
+                           ->hint(function (Order $record) {
+                               return new HtmlString(
+                                   '<span style="" class="fi-badge flex items-center justify-center gap-x-1 rounded-md text-xs font-medium ring-1 ring-inset px-1.5 min-w-[theme(spacing.5)] py-0.5 tracking-tight bg-gray-50 text-gray-600 ring-gray-600/10 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20 fi-color-gray w-max"><span class="grid"><span class="truncate">'.$record->customer->customerGroup->name.'</span></span>'
+                               );
+                           })
                            ->relationship(
                                name: 'customer',
                                titleAttribute: 'name',
@@ -322,7 +327,7 @@ class EditOrder extends EditRecord
 
                                return implode(' ', $label);
                            })
-                           ->hint(function (Order $order) {
+                           ->helperText(function (Order $order) {
                                if (! $order->customer->phone) {
                                    return false;
                                }
