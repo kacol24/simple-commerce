@@ -137,6 +137,7 @@ class ProductResource extends Resource
                                          }),
                 Tables\Columns\TextColumn::make('brand.name')
                                          ->toggleable(isToggledHiddenByDefault: true)
+                                         ->searchable()
                                          ->sortable(),
                 Tables\Columns\TextColumn::make('default_price')
                                          ->label('Price')
