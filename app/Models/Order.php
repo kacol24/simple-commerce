@@ -224,6 +224,7 @@ class Order extends Model
                             ];
                         }
                     );
+
         return $log;
     }
 
@@ -234,7 +235,7 @@ class Order extends Model
 
     public function isReseller()
     {
-        return (bool) $this->reseller_id;
+        return (bool) $this->customer->customerGroup->is_reseller;
     }
 
     public function hasAddress()

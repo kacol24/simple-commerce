@@ -12,9 +12,11 @@ class CustomerGroup extends Model
     protected $fillable = [
         'name',
         'is_default',
+        'is_reseller',
     ];
 
     protected $casts = [
-        'is_default' => 'boolean',
+        'is_default'  => 'boolean',
+        'is_reseller' => 'boolean',
     ];
 }

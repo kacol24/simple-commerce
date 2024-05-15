@@ -55,16 +55,16 @@
             <tr>
                 <th>Pengirim</th>
             </tr>
-            @if($order->reseller)
+            @if($order->isReseller())
                 <tr>
                     <td>
-                        {{ $order->reseller->name }}
+                        {{ $order->customer->name }}
                     </td>
                 </tr>
-                @if($order->reseller->phone)
+                @if($order->customer->phone)
                     <tr>
                         <td>
-                            {{ '0' . $order->reseller->friendly_phone }}
+                            {{ '0' . $order->customer->friendly_phone }}
                         </td>
                     </tr>
                 @endif

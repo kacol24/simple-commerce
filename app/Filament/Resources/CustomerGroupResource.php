@@ -35,6 +35,7 @@ class CustomerGroupResource extends Resource
                 Forms\Components\TextInput::make('name')
                                           ->required()
                                           ->maxLength(255),
+                Forms\Components\Toggle::make('is_reseller'),
             ]);
     }
 
@@ -46,6 +47,9 @@ class CustomerGroupResource extends Resource
                                          ->searchable(),
                 Tables\Columns\IconColumn::make('is_default')
                                          ->label('Default?')
+                                         ->boolean(),
+                Tables\Columns\IconColumn::make('is_reseller')
+                                         ->label('Reseller?')
                                          ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                                          ->dateTime()
