@@ -28,11 +28,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
-    
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    
+
     protected static ?string $navigationGroup = 'Catalog';
-    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -124,7 +124,7 @@ class ProductResource extends Resource
                 'default' => 2,
             ]);
     }
-    
+
     public static function table(Table $table): Table
     {
         return $table
@@ -187,50 +187,42 @@ class ProductResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    BulkAction::make('publish_unpublish')
-                              ->label('Publish/Un-publish')
-                              ->deselectRecordsAfterCompletion()
-                              ->form([
-                                  ToggleButtons::make('is_active')
-                                               ->label('Active?')
-                                               ->inline()
-                                               ->required()
-                                               ->boolean(),
-                              ])
-                              ->requiresConfirmation()
-                              ->action(function (array $data, Collection $records) {
-                                  Product::whereIn('id', $records->pluck('id')->toArray())
-                                         ->update([
-                                             'is_active' => (bool) $data['is_active'],
-                                         ]);
-                              }),
                     BulkAction::make('bulk_edit')
                               ->label('Edit')
                               ->deselectRecordsAfterCompletion()
                               ->requiresConfirmation()
                               ->form([
+                                  ToggleButtons::make('is_active')
+                                               ->label('Active?')
+                                               ->inline()
+                                               ->boolean(),
                                   Select::make('brand_id')
                                         ->relationship('brand', 'name')
                                         ->preload(),
                               ])
                               ->action(function (array $data, Collection $records) {
                                   $updates = [];
-                                  $notify = [];
-                                  if ($data['brand_id']) {
-                                      $updates['brand_id'] = $data['brand_id'];
-                                      $notify[] = 'Brand';
+                                  $notifies = [];
+
+                                  if (! is_null($data['is_active'])) {
+                                      $updates['is_active'] = $data['is_active'];
+                                      $notifies[] = 'Active status';
                                   }
-                        
+                                  if (! is_null($data['brand_id'])) {
+                                      $updates['brand_id'] = $data['brand_id'];
+                                      $notifies[] = 'Brand';
+                                  }
+
                                   if (count($updates)) {
                                       Product::whereIn('id', $records->pluck('id'))
                                              ->update($updates);
-                            
+
                                       return Notification::make()
-                                                         ->title(implode(', ', $notify).' updated!')
+                                                         ->title(implode(', ', $notifies).' updated!')
                                                          ->success()
                                                          ->send();
                                   }
-                        
+
                                   Notification::make()
                                               ->title('No record was updated.')
                                               ->info()
@@ -244,14 +236,14 @@ class ProductResource extends Resource
             ->persistSearchInSession()
             ->persistColumnSearchesInSession();
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -261,7 +253,7 @@ class ProductResource extends Resource
             'edit'   => Pages\EditProduct::route('/{record}/edit'),
         ];
     }
-    
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
