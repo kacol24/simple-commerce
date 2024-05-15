@@ -16,6 +16,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\BulkAction;
@@ -134,6 +135,9 @@ class ProductResource extends Resource
                                          ->description(function ($record) {
                                              return '['.$record->default_sku.']';
                                          }),
+                Tables\Columns\TextColumn::make('brand.name')
+                                         ->toggleable(isToggledHiddenByDefault: true)
+                                         ->sortable(),
                 Tables\Columns\TextColumn::make('default_price')
                                          ->label('Price')
                                          ->prefix('Rp')
@@ -192,6 +196,38 @@ class ProductResource extends Resource
                                          ->update([
                                              'is_active' => (bool) $data['is_active'],
                                          ]);
+                              }),
+                    BulkAction::make('bulk_edit')
+                              ->label('Edit')
+                              ->deselectRecordsAfterCompletion()
+                              ->requiresConfirmation()
+                              ->form([
+                                  Select::make('brand_id')
+                                        ->relationship('brand', 'name')
+                                        ->preload(),
+                              ])
+                              ->action(function (array $data, Collection $records) {
+                                  $updates = [];
+                                  $notify = [];
+                                  if ($data['brand_id']) {
+                                      $updates['brand_id'] = $data['brand_id'];
+                                      $notify[] = 'Brand';
+                                  }
+
+                                  if (count($updates)) {
+                                      Product::whereIn('id', $records->pluck('id'))
+                                             ->update($updates);
+
+                                      return Notification::make()
+                                                         ->title(implode(', ', $notify).' updated!')
+                                                         ->success()
+                                                         ->send();
+                                  }
+
+                                  Notification::make()
+                                              ->title('No record was updated.')
+                                              ->info()
+                                              ->send();
                               }),
                 ]),
             ])
