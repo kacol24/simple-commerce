@@ -16,6 +16,7 @@ class Customer extends Model
     use HasPhone;
 
     protected $fillable = [
+        'customer_group_id',
         'is_active',
         'name',
         'phone',
@@ -49,5 +50,10 @@ class Customer extends Model
     public function addresses()
     {
         return $this->hasMany(Address::class);
+    }
+
+    public function customerGroup()
+    {
+        return $this->belongsTo(CustomerGroup::class)->oldest();
     }
 }

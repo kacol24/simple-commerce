@@ -7,10 +7,14 @@ use App\Filament\Resources\CustomerResource\RelationManagers;
 use App\Models\Customer;
 use Filament\Forms;
 use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -36,10 +40,17 @@ class CustomerResource extends Resource
     public static function getFormSchema()
     {
         return [
-            Forms\Components\Toggle::make('is_active')
-                                   ->required()
-                                   ->label('Active?')
-                                   ->default(true),
+            Group::make()
+                 ->columns(2)
+                 ->schema([
+                     Forms\Components\Toggle::make('is_active')
+                                            ->required()
+                                            ->label('Active?')
+                                            ->default(true),
+                     Select::make('customger_group_id')
+                           ->relationship('customerGroup', 'name')
+                           ->required(),
+                 ]),
             Group::make()
                  ->schema([
                      Forms\Components\TextInput::make('name')
@@ -70,6 +81,7 @@ class CustomerResource extends Resource
                                          ->label('Phone')
                                          ->searchable()
                                          ->prefix('+62 '),
+                Tables\Columns\TextColumn::make('customerGroup.name'),
                 Tables\Columns\ToggleColumn::make('is_active')
                                            ->label('Active?'),
                 Tables\Columns\TextColumn::make('created_at')
@@ -101,24 +113,46 @@ class CustomerResource extends Resource
                 Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    BulkAction::make('Publish')
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_edit')
+                              ->label('Edit')
                               ->deselectRecordsAfterCompletion()
+                              ->form([
+                                  ToggleButtons::make('is_active')
+                                               ->label('Active?')
+                                               ->inline()
+                                               ->boolean(),
+                                  Select::make('customer_group_id')
+                                        ->relationship('customerGroup', 'name'),
+
+                              ])
                               ->requiresConfirmation()
-                              ->action(function (Collection $records) {
-                                  Customer::whereIn('id', $records->pluck('id')->toArray())
-                                          ->update([
-                                              'is_active' => true,
-                                          ]);
-                              }),
-                    BulkAction::make('Un-publish')
-                              ->deselectRecordsAfterCompletion()
-                              ->requiresConfirmation()
-                              ->action(function (Collection $records) {
-                                  Customer::whereIn('id', $records->pluck('id')->toArray())
-                                          ->update([
-                                              'is_active' => false,
-                                          ]);
+                              ->action(function (array $data, Collection $records) {
+                                  $updates = [];
+                                  $notifies = [];
+                                  if (! is_null($data['is_active'])) {
+                                      $updates['is_active'] = $data['is_active'];
+                                      $notifies[] = 'Active status';
+                                  }
+                                  if (! is_null($data['customer_group_id'])) {
+                                      $updates['customer_group_id'] = $data['customer_group_id'];
+                                      $notifies[] = 'Customer group';
+                                  }
+
+                                  if (count($updates)) {
+                                      Customer::whereIn('id', $records->pluck('id'))
+                                              ->update($updates);
+
+                                      return Notification::make()
+                                                         ->title(implode(', ', $notifies).' updated!')
+                                                         ->success()
+                                                         ->send();
+                                  }
+
+                                  Notification::make()
+                                              ->title('No record was updated.')
+                                              ->info()
+                                              ->send();
                               }),
                     //Tables\Actions\DeleteBulkAction::make(),
                     //Tables\Actions\ForceDeleteBulkAction::make(),
