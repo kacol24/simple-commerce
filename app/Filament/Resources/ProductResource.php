@@ -172,6 +172,12 @@ class ProductResource extends Resource
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active')
                                             ->label('Active?'),
+                Tables\Filters\SelectFilter::make('brand_id')
+                                           ->native(false)
+                                           ->preload()
+                                           ->label('Brand')
+                                           ->relationship('brand', 'name')
+                                           ->multiple(),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
