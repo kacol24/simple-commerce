@@ -73,6 +73,7 @@ class AdminPanelProvider extends PanelProvider
                                ->label('Settings')
                                ->collapsed(),
 
-            ]);
+            ])
+            ->viteTheme('resources/css/filament/admin/theme.css');
     }
 }
