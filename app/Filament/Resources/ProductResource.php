@@ -130,6 +130,16 @@ class ProductResource extends Resource
                                                       ->grouped()
                                                       ->searchable()
                                                       ->relationship('collections', 'title', 'parent_id'),
+                                            SelectTree::make('categories')
+                                                      ->enableBranchNode()
+                                                      ->withCount()
+                                                      ->independent(false)
+                                                      ->expandSelected()
+                                                      ->parentNullValue(-1)
+                                                      ->defaultOpenLevel(2)
+                                                      ->grouped()
+                                                      ->searchable()
+                                                      ->relationship('categories', 'title', 'parent_id'),
                                         ]),
                              ])
                              ->columnSpan(1),
