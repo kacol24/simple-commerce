@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CollectionResource\Widgets;
+namespace App\Filament\Resources\CategoryResource\Widgets;
 
 use App\Models\Category;
 use Filament\Forms\Components\TextInput;
