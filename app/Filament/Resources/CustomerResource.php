@@ -63,10 +63,12 @@ class CustomerResource extends Resource
                  ])
                  ->columns(2),
             Forms\Components\Repeater::make('addresses')
+                                     ->defaultItems(0)
                                      ->relationship('addresses')
                                      ->reorderable(false)
                                      ->simple(
                                          Forms\Components\Textarea::make('address')
+                                                                  ->required()
                                      ),
         ];
     }
