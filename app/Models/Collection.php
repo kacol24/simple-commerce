@@ -16,4 +16,9 @@ class Collection extends Model
         'title',
         'order',
     ];
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
+    }
 }

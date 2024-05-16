@@ -6,6 +6,7 @@ use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
@@ -58,7 +59,12 @@ class ProductResource extends Resource
                                             TextInput::make('default_sku')
                                                      ->label('SKU')
                                                      ->required()
-                                                     ->unique('product_variants', 'sku')
+                                                     ->unique(
+                                                         'product_variants',
+                                                         'sku',
+                                                         ignorable: function (Product $record) {
+                                                             return $record->defaultVariant();
+                                                         })
                                                      ->autocomplete(false)
                                                      ->datalist(ProductVariant::get()->pluck('sku'))
                                                      ->columnSpan([
@@ -114,6 +120,16 @@ class ProductResource extends Resource
                                             Select::make('brand_id')
                                                   ->relationship('brand', 'name')
                                                   ->preload(),
+                                            SelectTree::make('collections')
+                                                      ->enableBranchNode()
+                                                      ->withCount()
+                                                      ->independent(false)
+                                                      ->expandSelected()
+                                                      ->parentNullValue(-1)
+                                                      ->defaultOpenLevel(2)
+                                                      ->grouped()
+                                                      ->searchable()
+                                                      ->relationship('collections', 'title', 'parent_id'),
                                         ]),
                              ])
                              ->columnSpan(1),
