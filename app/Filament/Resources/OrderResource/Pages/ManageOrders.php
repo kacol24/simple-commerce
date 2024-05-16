@@ -94,7 +94,7 @@ class ManageOrders extends ManageRecords
         $order = $model::create([
             'channel_id'     => $data['channel_id'],
             'customer_id'    => $data['customer_id'],
-            'reseller_id'    => $data['reseller_id'],
+            'reseller_id'    => optional($data)['reseller_id'],
             'notes'          => $data['notes'],
             'order_no'       => $latestOrderNo,
             'sub_total'      => 0,
