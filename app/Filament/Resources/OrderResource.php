@@ -236,7 +236,11 @@ class OrderResource extends Resource
                                              );
                                          }),
             ])
-            ->defaultSort('created_at')
+            ->defaultSort('created_at', 'desc')
+            ->persistFiltersInSession()
+            ->persistSearchInSession()
+            ->persistSortInSession()
+            ->persistColumnSearchesInSession()
             ->checkIfRecordIsSelectableUsing(
                 fn(Model $record): bool => in_array($record->status, [
                     Processing::class,
