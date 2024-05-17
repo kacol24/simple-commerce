@@ -147,6 +147,9 @@ class EditOrder extends EditRecord
                                           ]),
                                 ]),
                          Section::make('Shipping')
+                                ->disabled(function (Order $order) {
+                                    return ! $order->status->canEditOrder();
+                                })
                                 ->schema(static::getShippingSection())
                                 ->columns([
                                     'default' => 2,
