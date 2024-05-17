@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
 use App\Models\Amountables\Fee;
-use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -61,7 +60,9 @@ class FeesRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                                           ->disabled(function (Order $order) {
+                                           ->disabled(function (Component $livewire) {
+                                               $order = $livewire->ownerRecord;
+
                                                return ! $order->status->canEditOrder();
                                            })
                                            ->after(function (Component $livewire) {
