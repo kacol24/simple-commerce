@@ -31,12 +31,11 @@ class OrderStats extends BaseWidget
                           ->count();
 
         [$cost, $revenue] = $this->getPageTableQuery()
-                                 ->where('status', Completed::class)
                                  ->get()
                                  ->reduceSpread(function ($cost, $revenue, $order) {
                                      $cost += $order->total_cost_price ?? 0;
                                      $revenue += $order->total_before_shipping ?? 0;
-                                     
+
                                      return [$cost, $revenue];
                                  }, 0, 0);
 
