@@ -9,6 +9,10 @@ use App\Filament\Resources\ProductOptionResource;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductOption;
+use App\States\Order\Cancelled;
+use App\States\Order\Completed;
+use App\States\Order\Processing;
+use App\States\Order\Refunded;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Hidden;
@@ -19,6 +23,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
@@ -250,6 +255,40 @@ class ItemsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
+                Action::make('reload_products')
+                      ->color('gray')
+                      ->requiresConfirmation()
+                      ->disabled(function (Component $livewire) {
+                          $order = $livewire->ownerRecord;
+
+                          return in_array($order->status, [
+                              Completed::class,
+                              Refunded::class,
+                              Cancelled::class,
+                          ]);
+                      })
+                      ->action(function (Component $livewire) {
+                          $order = $livewire->ownerRecord;
+                          foreach ($order->items as $item) {
+                              $variant = $item->purchasable;
+                              $product = $variant->product;
+
+                              $item->update([
+                                  'title'             => $product->title,
+                                  'short_description' => $product->short_description,
+                                  'sku'               => $variant->sku,
+                                  'price'             => $product->default_price,
+                                  'cost_price'        => $product->default_cost_price,
+                                  'sub_total'         => $sub_total = $product->default_price * $item->quantity,
+                                  'total'             => $sub_total - $item->discount_total,
+                              ]);
+                          }
+                      })
+                      ->after(function (Component $livewire) {
+                          $livewire->dispatch('refreshOrders', fields: [
+                              'sub_total', 'grand_total',
+                          ]);
+                      }),
                 CreateAction::make()
                             ->using(function (array $data, string $model): Model {
                                 $order = $this->getOwnerRecord();
