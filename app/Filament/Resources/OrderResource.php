@@ -113,6 +113,12 @@ class OrderResource extends Resource
                                                  return '0'.$record->recipient_phone_for_humans;
                                              }
                                          }),
+                Tables\Columns\TextColumn::make('items.title_with_quantity')
+                                         ->listWithLineBreaks()
+                                         ->bulleted()
+                                         ->limitList(1)
+                                         ->expandableLimitedList()
+                                         ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('reseller.name')
                                          ->searchable()
                                          ->description(
@@ -166,7 +172,8 @@ class OrderResource extends Resource
                                          ]),
                 Tables\Columns\TextColumn::make('paid_total')
                                          ->numeric(thousandsSeparator: '.')
-                                         ->prefix('Rp'),
+                                         ->prefix('Rp')
+                                         ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                                          ->dateTime()
                                          ->sortable()

@@ -34,6 +34,10 @@ class OrderItem extends Model
         'option' => 'array',
     ];
 
+    protected $appends = [
+        'title_with_quantity',
+    ];
+
     public function order()
     {
         return $this->belongsTo(Order::class);
@@ -86,6 +90,11 @@ class OrderItem extends Model
     public function getProfitAttribute()
     {
         return $this->total - $this->total_cost_price;
+    }
+
+    public function getTitleWithQuantityAttribute()
+    {
+        return $this->quantity.' x '.$this->title;
     }
 
     public function hasDiscount()
