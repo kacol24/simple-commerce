@@ -10,4 +10,14 @@ class PartialPayment extends OrderState
     {
         return 'warning';
     }
+
+    public function canEditAddress(): bool
+    {
+        return true;
+    }
+
+    public function canEditOrder(): bool
+    {
+        return true;
+    }
 }

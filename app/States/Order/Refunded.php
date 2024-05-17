@@ -10,4 +10,14 @@ class Refunded extends OrderState
     {
         return 'danger';
     }
+
+    public function canEditAddress(): bool
+    {
+        return false;
+    }
+
+    public function canEditOrder(): bool
+    {
+        return false;
+    }
 }

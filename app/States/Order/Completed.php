@@ -15,4 +15,14 @@ class Completed extends OrderState
     {
         return '#a3e635';
     }
+
+    public function canEditAddress(): bool
+    {
+        return false;
+    }
+
+    public function canEditOrder(): bool
+    {
+        return false;
+    }
 }

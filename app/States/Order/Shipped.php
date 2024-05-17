@@ -10,4 +10,14 @@ class Shipped extends OrderState
     {
         return 'primary';
     }
+
+    public function canEditAddress(): bool
+    {
+        return false;
+    }
+
+    public function canEditOrder(): bool
+    {
+        return false;
+    }
 }

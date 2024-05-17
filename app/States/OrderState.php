@@ -25,6 +25,10 @@ abstract class OrderState extends State
 
     abstract public function color();
 
+    abstract public function canEditAddress(): Bool;
+
+    abstract public function canEditOrder(): Bool;
+
     /**
      * @throws \Spatie\ModelStates\Exceptions\InvalidConfig
      */

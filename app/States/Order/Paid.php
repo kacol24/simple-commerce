@@ -10,4 +10,14 @@ class Paid extends OrderState
     {
         return 'info';
     }
+
+    public function canEditAddress(): bool
+    {
+        return true;
+    }
+
+    public function canEditOrder(): bool
+    {
+        return true;
+    }
 }

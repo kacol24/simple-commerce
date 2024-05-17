@@ -155,6 +155,9 @@ class EditOrder extends EditRecord
                                 ->collapsible()
                                 ->headerActions([
                                     Action::make('load_address')
+                                          ->disabled(function (Order $order) {
+                                              return ! $order->status->canEditOrder();
+                                          })
                                           ->color('gray')
                                           ->requiresConfirmation()
                                           ->modalWidth(width: MaxWidth::ExtraLarge)

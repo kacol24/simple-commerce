@@ -10,4 +10,14 @@ class Draft extends OrderState
     {
         return 'gray';
     }
+
+    public function canEditAddress(): bool
+    {
+        return true;
+    }
+
+    public function canEditOrder(): bool
+    {
+        return true;
+    }
 }

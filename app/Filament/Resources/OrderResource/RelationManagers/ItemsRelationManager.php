@@ -9,10 +9,6 @@ use App\Filament\Resources\ProductOptionResource;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductOption;
-use App\States\Order\Cancelled;
-use App\States\Order\Completed;
-use App\States\Order\Processing;
-use App\States\Order\Refunded;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Hidden;
@@ -261,11 +257,7 @@ class ItemsRelationManager extends RelationManager
                       ->disabled(function (Component $livewire) {
                           $order = $livewire->ownerRecord;
 
-                          return in_array($order->status, [
-                              Completed::class,
-                              Refunded::class,
-                              Cancelled::class,
-                          ]);
+                          return ! $order->status->canEditOrder();
                       })
                       ->action(function (Component $livewire) {
                           $order = $livewire->ownerRecord;
@@ -290,6 +282,11 @@ class ItemsRelationManager extends RelationManager
                           ]);
                       }),
                 CreateAction::make()
+                            ->disabled(function (Component $livewire) {
+                                $order = $livewire->ownerRecord;
+
+                                return ! $order->status->canEditOrder();
+                            })
                             ->using(function (array $data, string $model): Model {
                                 $order = $this->getOwnerRecord();
 
