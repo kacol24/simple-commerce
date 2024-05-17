@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
 use App\Models\Amountables\Discount;
+use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -60,6 +61,9 @@ class DiscountsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
+                                           ->disabled(function (Order $order) {
+                                               return ! $order->status->canEditOrder();
+                                           })
                                            ->after(function (Component $livewire) {
                                                $livewire->dispatch('refreshOrders', fields: [
                                                    'discount_total', 'grand_total',

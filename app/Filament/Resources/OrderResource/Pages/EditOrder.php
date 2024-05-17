@@ -296,6 +296,9 @@ class EditOrder extends EditRecord
             Group::make()
                  ->schema([
                      Select::make('channel_id')
+                           ->disabled(function (Order $order) {
+                               return ! $order->status->canEditOrder();
+                           })
                            ->required()
                            ->relationship('channel', 'name')
                            ->selectablePlaceholder(false),
@@ -307,6 +310,9 @@ class EditOrder extends EditRecord
                               ->disabled(),
                      Select::make('customer_id')
                            ->label('Customer')
+                           ->disabled(function (Order $order) {
+                               return ! $order->status->canEditOrder();
+                           })
                            ->required()
                            ->native(false)
                            ->hint(function (Order $record) {

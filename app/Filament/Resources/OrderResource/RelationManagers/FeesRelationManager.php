@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
 use App\Models\Amountables\Fee;
+use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -60,6 +61,9 @@ class FeesRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
+                                           ->disabled(function (Order $order) {
+                                               return ! $order->status->canEditOrder();
+                                           })
                                            ->after(function (Component $livewire) {
                                                $livewire->dispatch('refreshOrders', fields: [
                                                    'fees_total', 'grand_total',
