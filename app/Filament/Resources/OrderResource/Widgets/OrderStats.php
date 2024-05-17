@@ -29,6 +29,7 @@ class OrderStats extends BaseWidget
                           )
                           ->perMonth()
                           ->count();
+        $itemCount = $this->getPageTableQuery()->get()->sum(fn($order) => $order->items->sum('quantity'));
 
         [$cost, $revenue] = $this->getPageTableQuery()
                                  ->get()
@@ -41,7 +42,7 @@ class OrderStats extends BaseWidget
 
         return [
             Stat::make('Orders', $this->getPageTableQuery()->count())
-                ->description($this->getPageTableQuery()->where('status', Completed::class)->count().' completed')
+                ->description($itemCount.' ' . str('item')->plural($itemCount))
                 ->chart(
                     $orderData
                         ->map(fn(TrendValue $value) => $value->aggregate)
