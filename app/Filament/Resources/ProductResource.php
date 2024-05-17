@@ -118,6 +118,8 @@ class ProductResource extends Resource
                                  Section::make('Associations')
                                         ->schema([
                                             Select::make('brand_id')
+                                                  ->native(false)
+                                                  ->searchable()
                                                   ->relationship('brand', 'name')
                                                   ->preload(),
                                             SelectTree::make('collections')
