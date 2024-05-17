@@ -62,8 +62,8 @@ class ProductResource extends Resource
                                                      ->unique(
                                                          'product_variants',
                                                          'sku',
-                                                         ignorable: function (Product $record) {
-                                                             return $record->defaultVariant();
+                                                         ignorable: function (Product $record = null) {
+                                                             return optional($record)->defaultVariant();
                                                          })
                                                      ->autocomplete(false)
                                                      ->datalist(ProductVariant::get()->pluck('sku'))
