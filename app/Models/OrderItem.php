@@ -89,7 +89,7 @@ class OrderItem extends Model
 
     public function getProfitAttribute()
     {
-        return $this->total - $this->total_cost_price;
+        return $this->sub_total - $this->total_cost_price;
     }
 
     public function getTitleWithQuantityAttribute()

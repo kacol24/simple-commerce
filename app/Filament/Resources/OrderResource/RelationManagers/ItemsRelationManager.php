@@ -223,6 +223,11 @@ class ItemsRelationManager extends RelationManager
                           ->prefix('Rp')
                           ->numeric(thousandsSeparator: '.')
                           ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('profit')
+                          ->label('Profit')
+                          ->prefix('Rp')
+                          ->numeric(thousandsSeparator: '.')
+                          ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('discount_total')
                           ->label('Discount')
                           ->prefix('Rp')
