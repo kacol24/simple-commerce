@@ -22,9 +22,7 @@ _{{ $item->option_string }}_
 @endforeach
 
 @if(count($shippings))
---------------------
-Ongkir
-
+*ONGKIR*
 @foreach($shippings as $shipping)
 {{ $shipping['label'] }}: {{ $shipping['cost'] }}
 @endforeach
