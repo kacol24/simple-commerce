@@ -19,13 +19,7 @@ class PackingSlipController extends Controller
 
     public function bulk(Request $request)
     {
-        $order = Order::whereIn('id', $request->order_ids)->first();
-        $orders = [
-            $order,
-            $order,
-            $order,
-            $order,
-        ];
+        $orders = Order::whereIn('id', $request->order_ids)->get();
 
         return view('order.packing_slip', compact('orders'));
     }
