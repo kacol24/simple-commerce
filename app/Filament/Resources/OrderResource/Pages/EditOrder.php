@@ -103,7 +103,6 @@ class EditOrder extends EditRecord
                      ->schema([
                          Section::make('Order Details')
                                 ->schema(static::getOrderDetailsSection())
-                                ->columns(1)
                                 ->columnSpan(1)
                                 ->collapsible()
                                 ->headerActions([
@@ -301,60 +300,68 @@ class EditOrder extends EditRecord
                            })
                            ->required()
                            ->relationship('channel', 'name')
-                           ->selectablePlaceholder(false),
+                           ->selectablePlaceholder(false)
+                           ->columnSpan(1),
                      TextInput::make('status')
                               ->label('Status')
                               ->formatStateUsing(function (Order $record) {
                                   return $record->status->friendlyName();
                               })
+                              ->columnSpan(1)
                               ->disabled(),
-                     Select::make('customer_id')
-                           ->label('Customer')
-                           ->disabled(function (Order $order) {
-                               return ! $order->status->canEditOrder();
-                           })
-                           ->required()
-                           ->native(false)
-                           ->hint(function (Order $record) {
-                               return new HtmlString(
-                                   '<span style="" class="fi-badge flex items-center justify-center gap-x-1 rounded-md text-xs font-medium ring-1 ring-inset px-1.5 min-w-[theme(spacing.5)] py-0.5 tracking-tight bg-gray-50 text-gray-600 ring-gray-600/10 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20 fi-color-gray w-max"><span class="grid"><span class="truncate">'.$record->customer->customerGroup->name.'</span></span>'
-                               );
-                           })
-                           ->relationship(
-                               name: 'customer',
-                               titleAttribute: 'name',
-                               modifyQueryUsing: fn(Builder $query) => $query->active()
-                           )
-                           ->searchable(['name', 'phone'])
-                           ->preload()
-                           ->createOptionForm(CustomerResource::getFormSchema())
-                           ->editOptionForm(CustomerResource::getFormSchema())
-                           ->getOptionLabelFromRecordUsing(function (Model $customer) {
-                               $label = [];
-                               if ($customer->phone) {
-                                   $label[] = '['.$customer->phone.']';
-                               }
-
-                               $label[] = $customer->name;
-
-                               return implode(' ', $label);
-                           })
-                           ->helperText(function (Order $order) {
-                               if (! $order->customer->phone) {
-                                   return false;
-                               }
-
-                               return new HtmlString(
-                                   '<a target="_blank" href="'.$order->customer->whatsapp_url.'">+62 '.$order->customer->friendly_phone.'</a>'
-                               );
-                           })->columnSpan(2),
-                     SpatieTagsInput::make('tags')
-                                    ->suggestions(Tag::where('type', 'order')->pluck('name', 'id'))
-                                    ->type('order')
-                                    ->columnSpan(2),
                  ])
-                 ->columns(2),
-            Textarea::make('notes'),
+                 ->columns([
+                     'default' => 2,
+                 ])
+                 ->columnSpan(2),
+            Select::make('customer_id')
+                  ->label('Customer')
+                  ->columnSpan(2)
+                  ->disabled(function (Order $order) {
+                      return ! $order->status->canEditOrder();
+                  })
+                  ->required()
+                  ->native(false)
+                  ->hint(function (Order $record) {
+                      return new HtmlString(
+                          '<span style="" class="fi-badge flex items-center justify-center gap-x-1 rounded-md text-xs font-medium ring-1 ring-inset px-1.5 min-w-[theme(spacing.5)] py-0.5 tracking-tight bg-gray-50 text-gray-600 ring-gray-600/10 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20 fi-color-gray w-max"><span class="grid"><span class="truncate">'.$record->customer->customerGroup->name.'</span></span>'
+                      );
+                  })
+                  ->relationship(
+                      name: 'customer',
+                      titleAttribute: 'name',
+                      modifyQueryUsing: fn(Builder $query) => $query->active()
+                  )
+                  ->searchable(['name', 'phone'])
+                  ->preload()
+                  ->createOptionForm(CustomerResource::getFormSchema())
+                  ->editOptionForm(CustomerResource::getFormSchema())
+                  ->getOptionLabelFromRecordUsing(function (Model $customer) {
+                      $label = [];
+                      if ($customer->phone) {
+                          $label[] = '['.$customer->phone.']';
+                      }
+
+                      $label[] = $customer->name;
+
+                      return implode(' ', $label);
+                  })
+                  ->helperText(function (Order $order) {
+                      if (! $order->customer->phone) {
+                          return false;
+                      }
+
+                      return new HtmlString(
+                          '<a target="_blank" href="'.$order->customer->whatsapp_url.'">+62 '.$order->customer->friendly_phone.'</a>'
+                      );
+                  }),
+            SpatieTagsInput::make('tags')
+                           ->suggestions(Tag::where('type', 'order')->pluck('name', 'id'))
+                           ->type('order')
+                           ->columnSpan(2),
+            Textarea::make('notes')
+                    ->autosize()
+                    ->columnSpan(2),
         ];
     }
 
