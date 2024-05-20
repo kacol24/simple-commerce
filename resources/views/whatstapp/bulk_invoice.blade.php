@@ -16,7 +16,7 @@ _{{ $item->option_string }}_
 {{ $item->quantity }} x {{ $item->formatted_price }} = {{ $item->formatted_total }}
 
 @endforeach
-@if($order->hasShipping)
+@if($order->hasShipping())
 @php($shippings[] = ['label' => $order->recipient_name, 'cost' => $order->formatted_shipping_total])
 @endif
 @endforeach
