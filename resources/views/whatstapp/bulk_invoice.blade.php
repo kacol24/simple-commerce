@@ -5,6 +5,7 @@ Invoice pesanan @unless($orders->first()->isReseller())*{{ $orders->first()->cha
 *CUSTOMER*
 {{ $orders->first()->customer->name }}
 
+@php($shippings = [])
 *INVOICE*
 @foreach($orders as $order)
 @foreach($order->items as $item)
@@ -15,11 +16,21 @@ _{{ $item->option_string }}_
 {{ $item->quantity }} x {{ $item->formatted_price }} = {{ $item->formatted_total }}
 
 @endforeach
---------------------
-@if($order->hasShipping())
-Ongkir ({{ $order->recipient_name }}): {{ $order->formatted_shipping_total }}
+@if($order->hasShipping)
+@php($shippings[] = ['label' => $order->recipient_name, 'cost' => $order->formatted_shipping_total])
 @endif
 @endforeach
+
+@if(count($shippings))
+--------------------
+Ongkir
+
+@foreach($shippings as $shipping)
+{{ $shipping['label'] }}: {{ $shipping['cost'] }}
+@endforeach
+@endif
+
+--------------------
 
 *TOTAL: {{ number_format($orders->sum('grand_total'), thousands_separator: '.') }}*
 
