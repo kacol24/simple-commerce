@@ -20,7 +20,6 @@ _{{ $item->option_string }}_
 @php($shippings[] = ['label' => $order->recipient_name, 'cost' => $order->formatted_shipping_total])
 @endif
 @endforeach
-
 @if(count($shippings))
 *ONGKIR*
 @foreach($shippings as $shipping)
