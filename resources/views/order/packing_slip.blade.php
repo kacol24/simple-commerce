@@ -21,7 +21,7 @@
         }
     </style>
 </head>
-<body style="width: 48mm; margin: auto;">
+<body style="width: 48mm; margin: auto;max-width: 100%;padding-bottom: 10mm">
 @foreach($orders as $order)
     <div style="margin-top: 10mm;page-break-inside: avoid !important;">
         @unless($order->isReseller())
