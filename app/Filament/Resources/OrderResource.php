@@ -12,6 +12,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -241,19 +243,33 @@ class OrderResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkAction::make('bulk_packing_slip')
-                                         ->label('Packing Slip')
-                                         ->icon('heroicon-s-printer')
-                                         ->deselectRecordsAfterCompletion()
-                                         ->openUrlInNewTab()
-                                         ->action(function (array $data, Collection $records) {
-                                             return redirect()->route(
-                                                 'packing_slip.bulk',
-                                                 [
-                                                     'order_ids' => $records->pluck('id')->toArray(),
-                                                 ]
-                                             );
-                                         }),
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_packing_slip')
+                              ->label('Bulk Packing Slip')
+                              ->icon('heroicon-s-printer')
+                              ->deselectRecordsAfterCompletion()
+                              ->openUrlInNewTab()
+                              ->action(function (array $data, Collection $records) {
+                                  return redirect()->route(
+                                      'packing_slip.bulk',
+                                      [
+                                          'order_ids' => $records->pluck('id')->toArray(),
+                                      ]
+                                  );
+                              }),
+                    BulkAction::make('bulk_invoice')
+                              ->label('Bulk Invoice')
+                              ->icon('heroicon-s-currency-dollar')
+                              ->deselectRecordsAfterCompletion()
+                              ->action(function (array $data, Collection $records) {
+                                  $orderIds = $records->pluck('id')->toArray();
+
+                                  return redirect()->route(
+                                      'wa.orders.bulk_invoice', ['order_ids' => $orderIds]
+                                  );
+                              })
+                              ->openUrlInNewTab(),
+                ]),
             ])
             ->defaultSort('created_at', 'desc')
             ->persistFiltersInSession()
