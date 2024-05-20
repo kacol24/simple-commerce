@@ -16,6 +16,7 @@ class AddOrUpdateOrderItem extends AbstractAction
         $total = $subtotal - $discountTotal;
 
         $existing = OrderItem::where([
+            'order_id'         => $order->id,
             'purchasable_type' => ProductVariant::class,
             'purchasable_id'   => $payload->product->id,
             'option'           => json_encode($payload->options),
