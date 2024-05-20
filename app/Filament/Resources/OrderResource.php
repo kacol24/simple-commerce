@@ -6,15 +6,15 @@ use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Filament\Resources\OrderResource\Widgets\OrderStats;
 use App\Models\Order;
-use App\States\Order\Processing;
-use App\States\Order\UnderShipment;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -184,13 +184,25 @@ class OrderResource extends Resource
                                          ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('tag')
-                                           ->multiple()
-                                           ->preload()
-                                           ->relationship('tags', 'name'),
-                Tables\Filters\SelectFilter::make('status')
-                                           ->options(Order::getStatusDropdown()),
+                SelectFilter::make('tag')
+                            ->multiple()
+                            ->preload()
+                            ->relationship('tags', 'name'),
+                SelectFilter::make('customer')
+                            ->searchable()
+                            ->preload()
+                            ->native(false)
+                            ->relationship('customer', 'name'),
+                SelectFilter::make('status')
+                            ->options(Order::getStatusDropdown()),
+                SelectFilter::make('channel')
+                            ->relationship('channel', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->native(false),
                 Filter::make('created_at')
+                      ->columnSpanFull()
+                      ->columns(2)
                       ->form([
                           DatePicker::make('created_from')
                                     ->placeholder(
@@ -246,14 +258,10 @@ class OrderResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->persistFiltersInSession()
             ->persistSearchInSession()
-            ->persistSortInSession()
             ->persistColumnSearchesInSession()
-            ->checkIfRecordIsSelectableUsing(
-                fn(Model $record): bool => in_array($record->status, [
-                    Processing::class,
-                    UnderShipment::class,
-                ]),
-            );
+            ->filtersLayout(filtersLayout: Tables\Enums\FiltersLayout::Modal)
+            ->filtersFormWidth(MaxWidth::ExtraLarge)
+            ->filtersFormColumns(2);
     }
 
     public static function getRelations(): array
