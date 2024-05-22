@@ -147,7 +147,7 @@ class EditOrder extends EditRecord
                                 ]),
                          Section::make('Shipping')
                                 ->disabled(function (Order $order) {
-                                    return ! $order->status->canEditOrder();
+                                    return ! $order->status->canEditAddress();
                                 })
                                 ->schema(static::getShippingSection())
                                 ->columns([
@@ -158,7 +158,7 @@ class EditOrder extends EditRecord
                                 ->headerActions([
                                     Action::make('load_address')
                                           ->disabled(function (Order $order) {
-                                              return ! $order->status->canEditOrder();
+                                              return ! $order->status->canEditAddress();
                                           })
                                           ->color('gray')
                                           ->requiresConfirmation()
