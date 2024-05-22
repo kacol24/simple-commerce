@@ -1,3 +1,6 @@
+@extends('layouts.wa_invoice')
+
+@section('content')
 @foreach($bulkOrders as $customer => $orders)
 Invoice pesanan @unless($orders->first()->isReseller())*{{ $orders->first()->channel->name }}*@endunless
 
@@ -34,10 +37,4 @@ Invoice pesanan @unless($orders->first()->isReseller())*{{ $orders->first()->cha
 ====================
 @endunless
 @endforeach
-
-Pembayaran dapat dilakukan lewat Bank Transfer ke rekening Bank BCA
-*087 127 3757*
-a.n Fernanda E.P
-
-
-Mohon untuk mengirimkan bukti transfer ke nomor ini agar pesanan bisa kami proses segera
+@endsection
