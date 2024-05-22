@@ -18,12 +18,8 @@ Invoice pesanan @unless($orders->first()->isReseller())*{{ $orders->first()->cha
 <x-wa.invoice-item :item="$item"/>
 @endif
 
-
 @endforeach
-@if($order->hasShipping())
-@php($shippings[] = ['label' => $order->recipient_name, 'cost' => $order->formatted_shipping_total])
-@endif
-
+@if($order->hasShipping())@php($shippings[] = ['label' => $order->recipient_name, 'cost' => $order->formatted_shipping_total])@endif
 @if($order->discount_total)
 Diskon:
 @foreach($order->discounts as $discount)
