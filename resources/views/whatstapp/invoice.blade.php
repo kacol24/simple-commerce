@@ -16,7 +16,6 @@ Invoice pesanan @unless($order->isReseller())*{{ $order->channel->name }}*@endun
 @endif
 
 @endforeach
-
 --------------------
 @if($order->hasShipping())
 Ongkir: {{ $order->formatted_shipping_total }}
