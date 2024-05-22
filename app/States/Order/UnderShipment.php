@@ -13,7 +13,7 @@ class UnderShipment extends OrderState
 
     public function canEditAddress(): bool
     {
-        return false;
+        return true;
     }
 
     public function canEditOrder(): bool
