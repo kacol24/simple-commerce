@@ -92,6 +92,12 @@ class OrderResource extends Resource
                                          ->description(function (Order $order) {
                                              return $order->tagsWithType('order')->pluck('name')->implode(', ');
                                          }),
+                Tables\Columns\TextColumn::make('recipient_name')
+                                         ->description(function (Order $record) {
+                                             if ($record->recipient_phone) {
+                                                 return '0'.$record->recipient_phone_for_humans;
+                                             }
+                                         }),
                 Tables\Columns\TextColumn::make('customer.name')
                                          ->searchable()
                                          ->description(
@@ -103,12 +109,6 @@ class OrderResource extends Resource
                                                  return '0'.$order->customer->friendly_phone;
                                              }
                                          ),
-                Tables\Columns\TextColumn::make('recipient_name')
-                                         ->description(function (Order $record) {
-                                             if ($record->recipient_phone) {
-                                                 return '0'.$record->recipient_phone_for_humans;
-                                             }
-                                         }),
                 Tables\Columns\TextColumn::make('items.title_with_quantity')
                                          ->listWithLineBreaks()
                                          ->bulleted()
