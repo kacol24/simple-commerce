@@ -9,11 +9,11 @@ Invoice pesanan @unless($orders->first()->isReseller())*{{ $orders->first()->cha
 *INVOICE*
 @foreach($orders as $order)
 @foreach($order->items as $item)
-{{ $item->title }}
+{{ $item->quantity }} x {{ $item->title }}
 @if($item->option)
-_{{ $item->option_string }}_
+    _{{ $item->option_string }}_
 @endif
-{{ $item->quantity }} x {{ $item->formatted_price }} = {{ $item->formatted_total }}
+{{ $item->formatted_total }}
 
 @endforeach
 @if($order->hasShipping())
@@ -28,10 +28,16 @@ _{{ $item->option_string }}_
 @endif
 
 --------------------
-
 *TOTAL: {{ number_format($orders->sum('grand_total'), thousands_separator: '.') }}*
-
 @unless($loop->last)
+
 ====================
 @endunless
 @endforeach
+
+Pembayaran dapat dilakukan lewat Bank Transfer ke rekening Bank BCA
+*087 127 3757*
+a.n Fernanda E.P
+
+
+Mohon untuk mengirimkan bukti transfer ke nomor ini agar pesanan bisa kami proses segera

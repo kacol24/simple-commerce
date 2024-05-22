@@ -1,16 +1,16 @@
 Invoice pesanan @unless($order->isReseller())*{{ $order->channel->name }}*@endunless
 
+
 *CUSTOMER*
 {{ $customer->name }}
 
 *INVOICE*
 @foreach($order->items as $item)
-{{ $item->title }}
+@if($order->isReseller()){{ $item->quantity }} x @endif{{ $item->title }}
 @if($item->option)
     _{{ $item->option_string }}_
 @endif
-{{ $item->quantity }} x {{ $item->formatted_price }} = @if($item->hasDiscount())~{{ $item->formatted_sub_total }}~ {{ $item->formatted_total }}@else{{ $item->formatted_total }}@endif
-
+@unless($order->isReseller()){{ $item->quantity }} x {{ $item->formatted_price }} = @if($item->hasDiscount())~{{ $item->formatted_sub_total }}~@endif @endunless{{ $item->formatted_total }}
 
 @endforeach
 --------------------
@@ -37,6 +37,7 @@ Biaya:
 @endif
 *TOTAL: {{ $order->formatted_grand_total }}*
 @if($order->amount_due != $order->grand_total)
+
 --------------------
 @foreach($order->payments as $payment)
 {{ $payment->name }}: ({{ $payment->formatted_amount }})
