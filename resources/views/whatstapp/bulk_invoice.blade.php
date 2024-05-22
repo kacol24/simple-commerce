@@ -12,17 +12,33 @@ Invoice pesanan @unless($orders->first()->isReseller())*{{ $orders->first()->cha
 *INVOICE*
 @foreach($orders as $order)
 @foreach($order->items as $item)
-{{ $item->quantity }} x {{ $item->title }}
-@if($item->option)
-    _{{ $item->option_string }}_
+@if($order->isReseller())
+<x-wa.invoice-item-reseller :item="$item"/>
+@else
+<x-wa.invoice-item :item="$item"/>
 @endif
-{{ $item->formatted_total }}
+
 
 @endforeach
 @if($order->hasShipping())
 @php($shippings[] = ['label' => $order->recipient_name, 'cost' => $order->formatted_shipping_total])
 @endif
+
+@if($order->discount_total)
+Diskon:
+@foreach($order->discounts as $discount)
+    _{{ $discount->name }}: ({{ $discount->formatted_amount }})_
 @endforeach
+@endif
+@if($order->fees_total)
+Biaya:
+@foreach($order->fees as $fee)
+    _{{ $fee->name }}: {{ $fee->formatted_amount }}_
+@endforeach
+@endif
+@endforeach
+
+--------------------
 @if(count($shippings))
 *ONGKIR*
 @foreach($shippings as $shipping)
@@ -30,7 +46,6 @@ Invoice pesanan @unless($orders->first()->isReseller())*{{ $orders->first()->cha
 @endforeach
 @endif
 
---------------------
 *TOTAL: {{ number_format($orders->sum('grand_total'), thousands_separator: '.') }}*
 @unless($loop->last)
 

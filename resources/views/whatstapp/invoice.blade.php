@@ -9,13 +9,14 @@ Invoice pesanan @unless($order->isReseller())*{{ $order->channel->name }}*@endun
 
 *INVOICE*
 @foreach($order->items as $item)
-@if($order->isReseller()){{ $item->quantity }} x @endif{{ $item->title }}
-@if($item->option)
-    _{{ $item->option_string }}_
+@if($order->isReseller())
+<x-wa.invoice-item-reseller :item="$item"/>
+@else
+<x-wa.invoice-item :item="$item"/>
 @endif
-@unless($order->isReseller()){{ $item->quantity }} x {{ $item->formatted_price }} = @if($item->hasDiscount())~{{ $item->formatted_sub_total }}~@endif @endunless{{ $item->formatted_total }}
 
 @endforeach
+
 --------------------
 @if($order->hasShipping())
 Ongkir: {{ $order->formatted_shipping_total }}
