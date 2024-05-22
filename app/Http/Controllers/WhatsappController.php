@@ -27,6 +27,6 @@ class WhatsappController extends Controller
             'bulkOrders' => $orders,
         ])->render();
 
-        return redirect()->to('https://wa.me/?lang=en&text='.urlencode($append));
+        return redirect()->to('https://wa.me/?lang=en&text='.rawurlencode($append));
     }
 }

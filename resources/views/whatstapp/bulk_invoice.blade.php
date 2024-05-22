@@ -2,11 +2,11 @@
 
 @section('content')
 @foreach($bulkOrders as $customer => $orders)
-Invoice pesanan @unless($orders->first()->isReseller())*{{ $orders->first()->channel->name }}*@endunless
+Invoice pesanan @unless($orders->first()->isReseller())*{!! $orders->first()->channel->name !!}*@endunless
 
 
 *CUSTOMER*
-{{ $orders->first()->customer->name }}
+{!! $orders->first()->customer->name !!}
 
 @php($shippings = [])
 *INVOICE*
@@ -22,13 +22,13 @@ Invoice pesanan @unless($orders->first()->isReseller())*{{ $orders->first()->cha
 @if($order->discount_total)
 Diskon:
 @foreach($order->discounts as $discount)
-    _{{ $discount->name }}: ({{ $discount->formatted_amount }})_
+    _{!! $discount->name !!}: ({{ $discount->formatted_amount }})_
 @endforeach
 @endif
 @if($order->fees_total)
 Biaya:
 @foreach($order->fees as $fee)
-    _{{ $fee->name }}: {{ $fee->formatted_amount }}_
+    _{!! $fee->name !!}: {{ $fee->formatted_amount }}_
 @endforeach
 @endif
 @endforeach
@@ -37,7 +37,7 @@ Biaya:
 @if(count($shippings))
 *ONGKIR*
 @foreach($shippings as $shipping)
-{{ $shipping['label'] }}: {{ $shipping['cost'] }}
+{!! $shipping['label'] !!}: {{ $shipping['cost'] }}
 @endforeach
 @endif
 

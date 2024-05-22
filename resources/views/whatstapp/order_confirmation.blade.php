@@ -1,7 +1,7 @@
-Konfirmasi pesanan @unless($order->isReseller())*{{ $order->channel->name }}*@endunless
+Konfirmasi pesanan @unless($order->isReseller())*{!! $order->channel->name !!}*@endunless
 
 *CUSTOMER*
-{{ $customer->name }}
+{!! $customer->name !!}
 @if($customer->phone)
 {{ $customer->phone ? '0' . $customer->friendly_phone : '' }}
 @endif
@@ -11,12 +11,12 @@ _{!! nl2br($order->notes) !!}_
 
 *ORDER*
 @foreach($order->items as $item)
-{{ $item->quantity }} x {{ $item->title }}
+{{ $item->quantity }} x {!! $item->title !!}
 @if($item->option)
-    _{{ $item->option_string }}_
+    _{!! $item->option_string !!}_
 @endif
 @if($item->notes)
-    _notes: {{ $item->notes }}_
+    _notes: {!! $item->notes !!}_
 @endif
 
 @endforeach
