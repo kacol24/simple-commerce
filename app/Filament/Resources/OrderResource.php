@@ -85,12 +85,6 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('status')
-                                         ->formatStateUsing(function ($state) {
-                                             return $state->friendlyName();
-                                         })
-                                         ->badge()
-                                         ->color(fn(Model $order, string $state): string => $order->status->color()),
                 Tables\Columns\TextColumn::make('order_no')
                                          ->label('Order No')
                                          ->sortable()
@@ -176,6 +170,12 @@ class OrderResource extends Resource
                                          ->numeric(thousandsSeparator: '.')
                                          ->prefix('Rp')
                                          ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('status')
+                                         ->formatStateUsing(function ($state) {
+                                             return $state->friendlyName();
+                                         })
+                                         ->badge()
+                                         ->color(fn(Model $order, string $state): string => $order->status->color()),
                 Tables\Columns\TextColumn::make('created_at')
                                          ->dateTime()
                                          ->sortable()
