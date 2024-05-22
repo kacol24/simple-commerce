@@ -245,7 +245,7 @@ class OrderResource extends Resource
             ->bulkActions([
                 BulkActionGroup::make([
                     BulkAction::make('bulk_packing_slip')
-                              ->label('Bulk Packing Slip')
+                              ->label('Packing Slip')
                               ->icon('heroicon-s-printer')
                               ->deselectRecordsAfterCompletion()
                               ->openUrlInNewTab()
@@ -258,7 +258,7 @@ class OrderResource extends Resource
                                   );
                               }),
                     BulkAction::make('bulk_invoice')
-                              ->label('Bulk Invoice')
+                              ->label('Invoice')
                               ->icon('heroicon-s-currency-dollar')
                               ->deselectRecordsAfterCompletion()
                               ->action(function (array $data, Collection $records) {
