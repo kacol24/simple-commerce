@@ -93,6 +93,7 @@ class OrderResource extends Resource
                                              return $order->tagsWithType('order')->pluck('name')->implode(', ');
                                          }),
                 Tables\Columns\TextColumn::make('recipient_name')
+                                         ->label('Recipient')
                                          ->description(function (Order $record) {
                                              if ($record->recipient_phone) {
                                                  return '0'.$record->recipient_phone_for_humans;
