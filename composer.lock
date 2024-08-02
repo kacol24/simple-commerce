@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "838d7b9ed16a8ec59924d5faf0b55ecd",
+    "content-hash": "b9ca49760a8b88a5afe87d24d81e84bc",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -2524,6 +2524,82 @@
                 }
             ],
             "time": "2024-05-07T12:46:22+00:00"
+        },
+        {
+            "name": "invaders-xx/filament-nested-list",
+            "version": "v1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/invaders-xx/filament-nested-list.git",
+                "reference": "e0a1a8c71478ff562acd455282ce2f19c6bcfb83"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/invaders-xx/filament-nested-list/zipball/e0a1a8c71478ff562acd455282ce2f19c6bcfb83",
+                "reference": "e0a1a8c71478ff562acd455282ce2f19c6bcfb83",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.0",
+                "filament/support": "^3.0",
+                "illuminate/contracts": "^10.0||^11.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.16"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.15",
+                "nunomaduro/collision": "^8.1.1||^7.10.0",
+                "orchestra/testbench": "^9.0.0||^8.22.0",
+                "pestphp/pest": "^2.34",
+                "pestphp/pest-plugin-arch": "^2.7",
+                "pestphp/pest-plugin-laravel": "^2.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "InvadersXX\\FilamentNestedList\\FilamentNestedListServiceProvider"
+                    ],
+                    "aliases": {
+                        "FilamentNestedList": "InvadersXX\\FilamentNestedList\\Facades\\FilamentNestedList"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "InvadersXX\\FilamentNestedList\\": "src/",
+                    "InvadersXX\\FilamentNestedList\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "David Vincent",
+                    "email": "envahisseur@gmail.com",
+                    "role": "Owner"
+                }
+            ],
+            "description": "Nested lists layout plugin for Filament",
+            "homepage": "https://github.com/invaders-xx/filament-nested-list",
+            "keywords": [
+                "Envahisseur",
+                "filament-nested-list",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/invaders-xx/filament-nested-list/issues",
+                "source": "https://github.com/invaders-xx/filament-nested-list/tree/v1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/David Vincent",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-05-13T15:45:06+00:00"
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",
@@ -5269,76 +5345,6 @@
                 }
             ],
             "time": "2024-02-26T18:08:49+00:00"
-        },
-        {
-            "name": "solution-forest/filament-tree",
-            "version": "2.0.9",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/solutionforest/filament-tree.git",
-                "reference": "7e556b68e5485afe756c3ace593a7f8c1071e74a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/solutionforest/filament-tree/zipball/7e556b68e5485afe756c3ace593a7f8c1071e74a",
-                "reference": "7e556b68e5485afe756c3ace593a7f8c1071e74a",
-                "shasum": ""
-            },
-            "require": {
-                "filament/filament": "^3.0",
-                "filament/support": "^3.0",
-                "php": "^8.1",
-                "spatie/laravel-package-tools": "^1.15.0"
-            },
-            "require-dev": {
-                "laravel/pint": "^1.0",
-                "nunomaduro/collision": "^7.9",
-                "nunomaduro/larastan": "^2.0.1",
-                "orchestra/testbench": "^8.0",
-                "pestphp/pest": "^2.0",
-                "pestphp/pest-plugin-arch": "^2.0",
-                "pestphp/pest-plugin-laravel": "^2.0",
-                "phpstan/extension-installer": "^1.1",
-                "phpstan/phpstan-deprecation-rules": "^1.0",
-                "phpstan/phpstan-phpunit": "^1.0",
-                "spatie/laravel-ray": "^1.26"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "SolutionForest\\FilamentTree\\FilamentTreeServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "SolutionForest\\FilamentTree\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Carly",
-                    "email": "info@solutionforest.net",
-                    "role": "Developer"
-                }
-            ],
-            "description": "This is a tree layout plugin for Filament Admin",
-            "homepage": "https://github.com/solution-forest/filament-tree",
-            "keywords": [
-                "Solution Forest",
-                "filament-tree",
-                "laravel"
-            ],
-            "support": {
-                "issues": "https://github.com/solution-forest/filament-tree/issues",
-                "source": "https://github.com/solution-forest/filament-tree"
-            },
-            "time": "2024-03-28T07:52:07+00:00"
         },
         {
             "name": "spatie/color",
