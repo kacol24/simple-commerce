@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\CategoryResource\Pages;
 
 use App\Filament\Resources\CategoryResource;
-use App\Filament\Resources\CollectionResource\Widgets\CategoryTreeWidget;
+use App\Filament\Resources\CategoryResource\Widgets\CategoryTreeWidget;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
 
