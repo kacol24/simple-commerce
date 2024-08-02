@@ -59,6 +59,7 @@ class CollectionResource extends Resource
     {
         return [
             'index' => Pages\ManageCollections::route('/'),
+            'tree-list' => Pages\CollectionTree::route('/tree-list'),
         ];
     }
 
