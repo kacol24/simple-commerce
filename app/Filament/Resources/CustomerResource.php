@@ -81,7 +81,7 @@ class CustomerResource extends Resource
                                          ->searchable(),
                 Tables\Columns\TextColumn::make('friendly_phone')
                                          ->label('Phone')
-                                         ->searchable()
+                                         ->searchable(['phone'])
                                          ->prefix('+62 '),
                 Tables\Columns\TextColumn::make('customerGroup.name'),
                 Tables\Columns\ToggleColumn::make('is_active')
