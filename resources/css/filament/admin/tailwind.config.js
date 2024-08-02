@@ -6,6 +6,6 @@ export default {
         './app/Filament/**/*.php',
         './resources/views/filament/**/*.blade.php',
         './vendor/filament/**/*.blade.php',
-        './vendor/invaders-xx/filament-nested-list/resources/**/*.blade.php',
+        './solution-forest/filament-tree/resources/**/*.blade.php',
     ],
 }

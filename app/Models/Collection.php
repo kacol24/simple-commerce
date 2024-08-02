@@ -8,6 +8,7 @@ use SolutionForest\FilamentTree\Concern\ModelTree;
 
 class Collection extends Model
 {
+    use ModelTree;
     use SoftDeletes;
 
     protected $fillable = [

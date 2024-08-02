@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\CategoryResource\Pages;
 
 use App\Filament\Resources\CategoryResource;
-use App\Filament\Resources\CategoryResource\Widgets\CategoryReorderWidget;
+use App\Filament\Resources\CategoryResource\Widgets\CategoryTreeWidget;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
 
@@ -21,7 +21,7 @@ class ManageCategory extends ManageRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            CategoryReorderWidget::class,
+            CategoryTreeWidget::class,
         ];
     }
 }
