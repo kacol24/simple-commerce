@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages\CategoryTree;
+use App\Filament\Resources\CategoryResource\Pages\CategoryTreePage;
 use App\Filament\Resources\CategoryResource\Pages\ManageCategory;
 use App\Filament\Resources\CollectionResource\RelationManagers;
 use App\Models\Category;
