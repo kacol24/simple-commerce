@@ -58,8 +58,7 @@ class CollectionResource extends Resource
     public static function getPages(): array
     {
         return [
-            //'index' => Pages\ManageCollections::route('/'),
-            'index' => Pages\CollectionTree::route('/'),
+            'index' => Pages\ManageCollections::route('/'),
         ];
     }
 
