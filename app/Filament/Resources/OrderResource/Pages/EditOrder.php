@@ -29,6 +29,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Components\View;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Enums\MaxWidth;
@@ -196,8 +197,8 @@ class EditOrder extends EditRecord
                                                     ->searchable(['name', 'phone'])
                                                     ->preload()
                                                     ->dehydrated(false)
-                                                    ->afterStateUpdated(function (Component $livewire) {
-                                                        $livewire->reset('data.address');
+                                                    ->afterStateUpdated(function (Set $set) {
+                                                        $set('address', null);
                                                     })
                                                     ->getOptionLabelFromRecordUsing(function (Model $customer) {
                                                         $label = [];
@@ -211,6 +212,7 @@ class EditOrder extends EditRecord
                                                     })
                                                     ->columnSpan(1),
                                               Radio::make('address')
+                                                    ->live()
                                                    ->required()
                                                    ->options(function (Get $get) {
                                                        $customerId = $get('shipping_customer_id');
