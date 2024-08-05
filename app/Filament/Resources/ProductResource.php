@@ -135,7 +135,7 @@ class ProductResource extends Resource
                                             SelectTree::make('categories')
                                                       ->enableBranchNode()
                                                       ->withCount()
-                                                      ->independent(false)
+                                                      ->independent()
                                                       ->expandSelected()
                                                       ->parentNullValue(-1)
                                                       ->defaultOpenLevel(2)

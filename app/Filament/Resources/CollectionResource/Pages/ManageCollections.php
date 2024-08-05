@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\CollectionResource\Pages;
 
 use App\Filament\Resources\CollectionResource;
-use App\Filament\Widgets\CollectionWidget;
+use App\Filament\Resources\CollectionResource\Widgets\CollectionWidget;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
 

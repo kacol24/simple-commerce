@@ -1,14 +1,8 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Filament\Resources\CollectionResource\Widgets;
 
 use App\Models\Collection;
-use Filament\Notifications\Notification;
-use SolutionForest\FilamentTree\Actions\Action;
-use SolutionForest\FilamentTree\Actions\ActionGroup;
-use SolutionForest\FilamentTree\Actions\DeleteAction;
-use SolutionForest\FilamentTree\Actions\EditAction;
-use SolutionForest\FilamentTree\Actions\ViewAction;
 use SolutionForest\FilamentTree\Widgets\Tree as BaseWidget;
 
 class CollectionWidget extends BaseWidget
@@ -41,7 +35,7 @@ class CollectionWidget extends BaseWidget
     //     return null;
     // }
 
-    // CUSTOMIZE ACTION OF EACH RECORD, CAN DELETE 
+    // CUSTOMIZE ACTION OF EACH RECORD, CAN DELETE
     // protected function getTreeActions(): array
     // {
     //     return [
@@ -52,7 +46,7 @@ class CollectionWidget extends BaseWidget
     //         // ViewAction::make(),
     //         // EditAction::make(),
     //         ActionGroup::make([
-    //             
+    //
     //             ViewAction::make(),
     //             EditAction::make(),
     //         ]),
