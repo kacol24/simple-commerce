@@ -24,12 +24,7 @@ class EditProduct extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         \DB::beginTransaction();
-        $record->update([
-            'is_active'         => $data['is_active'],
-            'title'             => $data['title'],
-            'short_description' => $data['short_description'],
-            'long_description'  => $data['long_description'],
-        ]);
+        $record->update($data);
 
         $record->defaultVariant()->update([
             'sku' => $data['default_sku'],

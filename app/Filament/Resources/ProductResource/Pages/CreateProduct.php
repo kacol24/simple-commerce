@@ -14,12 +14,7 @@ class CreateProduct extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         \DB::beginTransaction();
-        $product = Product::create([
-            'is_active'         => $data['is_active'],
-            'title'             => $data['title'],
-            'short_description' => $data['short_description'],
-            'long_description'  => $data['long_description'],
-        ]);
+        $product = Product::create($data);
 
         $variant = $product->variants()->create([
             'sku' => $data['default_sku'],

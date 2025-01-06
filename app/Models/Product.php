@@ -17,11 +17,15 @@ class Product extends Model
         'title',
         'short_description',
         'long_description',
+        'images',
+        'original_file_names',
     ];
 
     protected $casts = [
-        'is_active'   => 'boolean',
-        'is_featured' => 'boolean',
+        'is_active'           => 'boolean',
+        'is_featured'         => 'boolean',
+        'images'              => 'array',
+        'original_file_names' => 'array',
     ];
 
     protected $appends = [

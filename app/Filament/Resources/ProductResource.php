@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\RichEditor;
@@ -99,6 +100,19 @@ class ProductResource extends Resource
                                                      ->columnSpanFull(),
                                             RichEditor::make('long_description')
                                                       ->columnSpanFull(),
+                                            FileUpload::make('images')
+                                                      ->helperText('First image is used as featured or thumbnail.')
+                                                      ->image()
+                                                      ->multiple()
+                                                      ->imageEditor()
+                                                      ->moveFiles()
+                                                      ->reorderable()
+                                                      ->appendFiles()
+                                                      ->previewable()
+                                                      ->openable()
+                                                      ->downloadable()
+                                                      ->storeFileNamesIn('original_file_names')
+                                                      ->panelLayout('grid'),
                                         ])
                                         ->collapsible()
                                         ->persistCollapsed()
@@ -157,6 +171,11 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('images')
+                                          ->square()
+                                          ->limit(1)
+                                          ->limitedRemainingTextSeparate()
+                                          ->limitedRemainingText(),
                 Tables\Columns\TextColumn::make('title')
                                          ->searchable()
                                          ->sortable()
