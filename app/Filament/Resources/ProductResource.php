@@ -172,6 +172,7 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('images')
+                                          ->toggleable()
                                           ->square()
                                           ->limit(1)
                                           ->limitedRemainingTextSeparate()
