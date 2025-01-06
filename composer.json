@@ -12,6 +12,7 @@
         "filament/spatie-laravel-tags-plugin": "^3.2",
         "flowframe/laravel-trend": "^0.2.0",
         "icetalker/filament-table-repeater": "^1.2",
+        "inertiajs/inertia-laravel": "^2.0",
         "invaders-xx/filament-nested-list": "^1.0",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
