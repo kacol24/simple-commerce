@@ -28,6 +28,9 @@ class CollectionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title'),
+                Forms\Components\Toggle::make('is_active')
+                                       ->default(true)
+                                       ->label('Active?'),
             ]);
     }
 
@@ -36,6 +39,8 @@ class CollectionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title'),
+                Tables\Columns\ToggleColumn::make('is_active')
+                                           ->label('Active?'),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -59,7 +64,6 @@ class CollectionResource extends Resource
     {
         return [
             'index' => Pages\ManageCollections::route('/'),
-            'tree-list' => Pages\CollectionTree::route('/tree-list'),
         ];
     }
 
