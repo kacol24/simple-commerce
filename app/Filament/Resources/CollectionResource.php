@@ -21,7 +21,7 @@ class CollectionResource extends Resource
 
     protected static ?string $navigationGroup = 'Catalog';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationParentItem = 'Products';
 
     public static function form(Form $form): Form
     {

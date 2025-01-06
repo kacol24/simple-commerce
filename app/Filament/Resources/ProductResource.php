@@ -7,6 +7,7 @@ use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -136,16 +137,9 @@ class ProductResource extends Resource
                                                   ->searchable()
                                                   ->relationship('brand', 'name')
                                                   ->preload(),
-                                            SelectTree::make('collections')
-                                                      ->enableBranchNode()
-                                                      ->withCount()
-                                                      ->independent(false)
-                                                      ->expandSelected()
-                                                      ->parentNullValue(-1)
-                                                      ->defaultOpenLevel(2)
-                                                      ->grouped()
-                                                      ->searchable()
-                                                      ->relationship('collections', 'title', 'parent_id'),
+                                            CheckboxList::make('collections')
+                                                        ->searchable()
+                                                        ->relationship(titleAttribute: 'title'),
                                             SelectTree::make('categories')
                                                       ->enableBranchNode()
                                                       ->withCount()
